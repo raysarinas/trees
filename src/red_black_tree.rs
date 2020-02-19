@@ -19,7 +19,12 @@ struct TreeNode<T> {
     right: RedBlackTree,
 }
 
-impl<T> TreeNode<T> {
+struct RBTree<T> {
+    root: TreeNode<T>,
+    len: usize
+}
+
+impl<T> RBTree<T> {
     // fn rotate() {
 
     // }
@@ -32,27 +37,27 @@ impl<T> TreeNode<T> {
     
     // }
     
-    pub fn delete_node() {
-    
+    pub fn delete_node(&mut self) {
+        self.len -= 1;
     }
     
     pub fn height() {
     
     }
 
-    pub fn insert_node() {
-    
+    pub fn insert_node(&mut self) {
+        self.len += 1;
     }
     
-    pub fn is_empty() {
-        
+    pub fn is_empty(&self) -> bool {
+        self.len == 0
     }
 
     pub fn print() {
     
     }
 
-    pub fn size() {
-    
+    pub fn size(&self) -> usize {
+        self.len
     }
 }
