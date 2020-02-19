@@ -8,19 +8,19 @@ enum NodeColor {
     Black,
 }
 
-type Tree = Rc<RefCell<TreeNode<u32>>>;
-type RedBlackTree= Option<Tree>;
+// type Tree = Rc<RefCell<TreeNode<u32>>>;
+// type RedBlackTree= Option<Tree>;
 
 struct TreeNode<T> {
     pub color: NodeColor,
     pub value: T,
-    pub parent: RedBlackTree,
-    left: RedBlackTree,
-    right: RedBlackTree,
+    pub parent: Option<Rc<RefCell<TreeNode<T>>>>,
+    left: Option<Rc<RefCell<TreeNode<T>>>>,
+    right: Option<Rc<RefCell<TreeNode<T>>>>
 }
 
 impl<T> TreeNode<T> {
-    fn new(val: T) -> Self {
+    fn new(val: T) -> TreeNode<T> {
         TreeNode {
             color: NodeColor::Red,
             value: val,
@@ -29,14 +29,19 @@ impl<T> TreeNode<T> {
             right: None
         }
     }
+
+    // fn unwrap(node: Option<Rc<RefCell<TreeNode<T>>>>) -> &'a mut TreeNode<T> {
+    //     node.as_ref().unwrap().as_ref().get_mut()
+    // }
 }
 
 struct RBTree<T> {
-    root: TreeNode<T>,
+    root: Option<Rc<RefCell<TreeNode<T>>>>,
     len: usize
 }
 
-impl<T> RBTree<T> {
+impl<T> RBTree <T>
+    where T: Ord + PartialEq + PartialOrd {
     // fn rotate() {
 
     // }
@@ -53,33 +58,65 @@ impl<T> RBTree<T> {
         self.len -= 1;
     }
     
-    pub fn height() {
-    
+    pub fn height(&self) -> usize {
+        // TODO: add match statements for left and right heights
+        // need to borrow and match stuff. see commented code below
+
+        // let left_height = self.root.left;
+        // let right_height = self.root.right;
+
+        // let left_height = match *self.left.borrow() {
+        //     Some(ref left) => left.height(),
+        //     None => 0,
+        // };
+        // let right_height = match *self.right.borrow() {
+        //     Some(ref right) => right.height(),
+        //     None => 0,
+        // };
+        // if left_height > right_height {
+        //     left_height += 1;
+        // } else {
+        //     right_height += 1;
+        // }
+        0
     }
+
 
     pub fn insert_node(&mut self, value: T) {
         if self.len == 0 {
-            self.root = TreeNode::new(value);
+            self.root = Some(Rc::new(RefCell::new(TreeNode::new(value))));
         } else {
             let curr_node = &self.root;
+            let curr_node_unwrapped = curr_node.as_ref().unwrap().as_ref().get_mut();
 
-            if value == curr_node.value {
+            if value == curr_node_unwrapped.value {
                 return
             }
-    
-            // let new_node = if value < curr_node.value {
-            // }
-    
-            // new_node = TreeNode { }
-            //let new_node = if value < self.value { &mut self.left_child } else { &mut self.right_child };
-    
-            match new_node {
-                &mut Some(ref mut sub_node) => sub_node.insert_node(value),
-                &mut None => {
-                    let temp = TreeNode { value: value, left_child: None, right_child: None};
-                    let boxed_node = Some(Box::new(temp));
-                    *new_node = boxed_node;
-                }
+
+            // loop  {}
+            let curr_node = if value < curr_node_unwrapped.value {
+                curr_node_unwrapped.left
+            } else {
+                curr_node_unwrapped.right
+            };
+
+            let new_node = TreeNode::new(value);
+            new_node.parent = curr_node_unwrapped.parent;
+
+            match curr_node {
+                // _ => Some(Rc::new(RefCell::new(new_node))),
+                Some(sub_node) => self.insert_node(value),
+                None => {
+                    // let temp = Some(Rc::new(RefCell::new(TreeNode::new(value))));
+                    // *curr_node = temp;
+                    *curr_node = Some(Rc::new(RefCell::new(new_node)));
+                },
+                // &mut Some(ref mut sub_node) => sub_node.insert_node(value),
+                // &mut None => {
+                //     let temp = TreeNode { value: value, left_child: None, right_child: None};
+                //     let boxed_node = Some(Box::new(temp));
+                //     *new_node = boxed_node;
+                // }
             }
         }
 
