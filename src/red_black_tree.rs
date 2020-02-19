@@ -22,7 +22,7 @@ struct TreeNode<T> {
 impl<T> TreeNode<T> {
     fn new(val: T) -> TreeNode<T> {
         TreeNode {
-            color: NodeColor::Red,
+            color: NodeColor::Black,
             value: val,
             parent: None,
             left: None,
@@ -30,7 +30,11 @@ impl<T> TreeNode<T> {
         }
     }
 
-    // fn unwrap(node: Option<Rc<RefCell<TreeNode<T>>>>) -> &'a mut TreeNode<T> {
+    fn new_wrapped(val: T) -> Option<Rc<RefCell<TreeNode<T>>>> {
+        Some(Rc::new(RefCell::new(TreeNode::new(val))))
+    }
+
+    // fn unwrap(node: Option<Rc<RefCell<TreeNode<T>>>>) -> TreeNode<T> {
     //     node.as_ref().unwrap().as_ref().get_mut()
     // }
 }
@@ -84,7 +88,7 @@ impl<T> RBTree <T>
 
     pub fn insert_node(&mut self, value: T) {
         if self.len == 0 {
-            self.root = Some(Rc::new(RefCell::new(TreeNode::new(value))));
+            self.root = TreeNode::new_wrapped(value);
         } else {
             let curr_node = &self.root;
             let curr_node_unwrapped = curr_node.as_ref().unwrap().as_ref().get_mut();
