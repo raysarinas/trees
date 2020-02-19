@@ -19,12 +19,24 @@ struct TreeNode<T> {
     right: RedBlackTree,
 }
 
+impl<T> TreeNode<T> {
+    fn new(val: T) -> Self {
+        TreeNode {
+            color: NodeColor::Red,
+            value: val,
+            parent: None,
+            left: None,
+            right: None
+        }
+    }
+}
+
 struct RBTree<T> {
     root: TreeNode<T>,
     len: usize
 }
 
-impl<T: PartialEq + PartialOrd> RBTree<T> {
+impl<T> RBTree<T> {
     // fn rotate() {
 
     // }
@@ -46,28 +58,32 @@ impl<T: PartialEq + PartialOrd> RBTree<T> {
     }
 
     pub fn insert_node(&mut self, value: T) {
-        self.len += 1;
+        if self.len == 0 {
+            self.root = TreeNode::new(value);
+        } else {
+            let curr_node = &self.root;
 
-        let curr_node = &self.root;
-
-        if value == curr_node.value {
-            return
-        }
-
-        // let new_node = if value < curr_node.value {
-        // }
-
-        // new_node = TreeNode { }
-        //let new_node = if value < self.value { &mut self.left_child } else { &mut self.right_child };
-
-        match new_node {
-            &mut Some(ref mut sub_node) => sub_node.insert_node(value),
-            &mut None => {
-                let temp = TreeNode { value: value, left_child: None, right_child: None};
-                let boxed_node = Some(Box::new(temp));
-                *new_node = boxed_node;
+            if value == curr_node.value {
+                return
+            }
+    
+            // let new_node = if value < curr_node.value {
+            // }
+    
+            // new_node = TreeNode { }
+            //let new_node = if value < self.value { &mut self.left_child } else { &mut self.right_child };
+    
+            match new_node {
+                &mut Some(ref mut sub_node) => sub_node.insert_node(value),
+                &mut None => {
+                    let temp = TreeNode { value: value, left_child: None, right_child: None};
+                    let boxed_node = Some(Box::new(temp));
+                    *new_node = boxed_node;
+                }
             }
         }
+
+        self.len += 1;
     }
 
 
