@@ -68,6 +68,41 @@ impl<T> RBTree <T>
     pub fn delete_node(&mut self) {
         self.len -= 1;
     }
+
+    pub fn search(&mut self, value: T) -> Option<Rc<RefCell<TreeNode<T>>>> {
+        let mut curr_node = self.root;
+
+        while !curr_node.is_none() {
+            let mut unwrapped_curr_node = curr_node.unwrap().borrow();
+
+            if value < unwrapped_curr_node.value.unwrap() {
+                curr_node = unwrapped_curr_node.left;
+            } else if value > unwrapped_curr_node.value.unwrap() {
+                curr_node = unwrapped_curr_node.right;
+            } else {
+                // if value == curr node
+                return curr_node;
+            }
+        }
+        None
+    }
+
+    pub fn delete_node_2(&mut self, value: T) {
+
+        let node_to_rm = self.search(value);
+
+        if node_to_rm.is_none() {
+            return
+        }
+
+        self.len -= 1;
+
+        let unwrapped_node = node_to_rm.unwrap().borrow();
+        if unwrapped_node.left.is_some() && unwrapped_node.right.is_some() {
+            
+        }
+
+    }
     
     pub fn height(&self) -> usize {
         // TODO: add match statements for left and right heights
