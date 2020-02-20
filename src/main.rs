@@ -21,9 +21,13 @@ fn main() {
     let mut rbt: red_black_tree::RBTree<u32> = red_black_tree::RBTree::new();
     rbt.insert_node(5);
     println!("{}", rbt.size());
-    // won't know for sure if the following will work unless fix_insert_color is done
+    rbt.print();
+
     rbt.insert_node(70);
     println!("{}", rbt.size());
+    rbt.print();
+    
     rbt.insert_node(35);
     println!("{}", rbt.size());
+    rbt.print();
 }

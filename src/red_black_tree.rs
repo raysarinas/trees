@@ -178,10 +178,11 @@ pub trait RBTreeTraits<T> {
     fn fix_delete_color(&self, node: TreeNode<T>);
     fn insert_node(&mut self, value: T);
     fn delete_node(&self, value: T);
+    fn in_order_traversal(&self, node: &TreeNode<T>);
     fn print(&self);
 }
 
-impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd {
+impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
     fn new() -> RBTree<T> {
         RBTree {
             root: None,
@@ -287,16 +288,16 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd {
             if curr_node_parent.is_some() {
                 new_node.set_parent(curr_node_parent);
                 if is_left_child {
-                    curr_node.parent().set_left(new_node.clone());
+                    new_node.parent().set_left(new_node.clone());
                 } else {
-                    curr_node.parent().set_right(new_node.clone());
+                    new_node.parent().set_right(new_node.clone());
                 }
             } else {
                 panic!("Current node has no parent!");
             }
         }
 
-        self.fix_insert_color(&new_node);
+        // self.fix_insert_color(&new_node);
         self.len += 1;
     }
 
@@ -310,8 +311,20 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd {
 
     }
 
-    // TODO
-    fn print(&self) {
+    fn in_order_traversal(&self, node: &TreeNode<T>) {
+        if node.is_some() && node.value().is_some() {
+            self.in_order_traversal(&node.left());
+            if node.color() == NodeColor::Red {
+                print!("<{:?}>", node.value().unwrap());
+            } else {
+                print!("[{:?}]", node.value().unwrap());
+            }
+            self.in_order_traversal(&node.right());
+        }
+    }
 
+    fn print(&self) {
+        self.in_order_traversal(&self.root);
+        println!();
     }
 }
