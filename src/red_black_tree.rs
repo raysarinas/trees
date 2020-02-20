@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 #[derive(Clone, Debug, PartialEq)]
 
-/********** TreeNode Helpers **********/
+/******************** TreeNode Helpers ********************/
 
 pub enum NodeColor {
     Red,
@@ -26,7 +26,7 @@ pub trait NodeTraits<T> {
     fn color(&self) -> NodeColor;
     fn value(&self) -> Option<T>;
     fn parent(&self) -> TreeNode<T>;
-    fn left(&self) -> TreeNode<T>;
+    fn left(&self) -> TreeNode<T>; 
     fn right(&self) -> TreeNode<T>;
     fn set_color(&self, color: NodeColor);
     fn set_value(&self, value: T);
@@ -63,7 +63,7 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy {
     fn value(&self) -> Option<T> {
         match self {
             Some(tree_node) => tree_node.borrow().value,
-            None => panic!("Error getting tree node value")
+            None => None
         }
     }
 
@@ -109,7 +109,8 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy {
     }
 }
 
-/********** RBTree Helpers **********/
+/******************** RBTree Helpers ********************/
+
 pub struct RBTree<T> {
     root: TreeNode<T>,
     len: usize
@@ -120,16 +121,17 @@ pub trait RBTreeTraits<T> {
     fn height(&self) -> usize;
     fn is_empty(&self) -> bool;
     fn size(&self) -> usize;
+    fn contains(&self, value: T) -> bool;
     fn rotate_left(&self, node: TreeNode<T>);
     fn rotate_right(&self, node: TreeNode<T>);
-    fn fix_ins_color(&self, node: TreeNode<T>);
-    fn fix_del_color(&self, node: TreeNode<T>);
-    fn insert_node(&self, value: T);
+    fn fix_insert_color(&self, node: TreeNode<T>);
+    fn fix_delete_color(&self, node: TreeNode<T>);
+    fn insert_node(&mut self, value: T);
     fn delete_node(&self, value: T);
     fn print(&self);
 }
 
-impl<T> RBTreeTraits<T> for RBTree<T> {
+impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd {
     fn new() -> RBTree<T> {
         RBTree {
             root: None,
@@ -169,6 +171,11 @@ impl<T> RBTreeTraits<T> for RBTree<T> {
         self.len
     }
 
+    // TODO (extra thing i guess)
+    fn contains(&self, value: T) -> bool {
+        false
+    }
+
     // TODO
     fn rotate_left(&self, node: TreeNode<T>) {
 
@@ -180,17 +187,46 @@ impl<T> RBTreeTraits<T> for RBTree<T> {
     }
 
     // TODO
-    fn fix_ins_color(&self, node: TreeNode<T>) {
+    fn fix_insert_color(&self, node: TreeNode<T>) {
 
     }
 
-    // TODO
-    fn insert_node(&self, value: T) {
+    fn insert_node(&mut self, value: T) {
+        let new_node = TreeNode::new(value);
 
+        if self.root.is_none() {
+            self.root = TreeNode::new(value);
+        } else if self.contains(value) {
+            println!("Value already exists!");
+            return;
+        } else {
+            let mut curr_node = self.root.clone();
+            let mut is_left_child = true;
+            
+            while curr_node.value().is_some() {
+                if value < curr_node.value().unwrap() {
+                    curr_node = curr_node.left();
+                    is_left_child = true;
+                } else {
+                    curr_node = curr_node.right();
+                    is_left_child = false;
+                }
+            }
+            
+            new_node.set_parent(curr_node.parent());
+            if is_left_child {
+                curr_node.parent().set_left(new_node.clone());
+            } else {
+                curr_node.parent().set_right(new_node.clone());
+            }
+        }
+
+        self.fix_insert_color(new_node.clone());
+        self.len += 1;
     }
 
     // TODO
-    fn fix_del_color(&self, node: TreeNode<T>) {
+    fn fix_delete_color(&self, node: TreeNode<T>) {
 
     }
 
@@ -204,87 +240,3 @@ impl<T> RBTreeTraits<T> for RBTree<T> {
 
     }
 }
-
-    // pub fn insert_node2(&mut self, value: T) {
-    //     // if self.len == 0 {
-    //     //     self.root = Node::new_wrapped(value);
-    //     // } else {
-    //     //     let root_unwrapped = self.root.unwrap().borrow();
-    //     //     let mut new_node = Node::new(value);
-    //     //     let mut subroot = root_unwrapped;
-    //     //     let is_left_child = true;
-
-    //     //     while new_node.value != root_unwrapped.value && new_node.parent.is_none() {
-
-    //     //         if !subroot.is_some() {
-
-    //     //             // insert at empty node
-    //     //             new_node.parent = subroot.parent;
-    //     //             let mut unwrapped_parent = subroot.parent.unwrap().borrow();
-
-    //     //             if is_left_child {
-    //     //                 unwrapped_parent.left = Node::new_wrapped(value);
-    //     //             } else {
-    //     //                 unwrapped_parent.right = Node::new_wrapped(value);
-    //     //             }
-
-    //     //         } else if value < subroot.value.unwrap() {
-    //     //             subroot = subroot.left.unwrap().borrow();
-    //     //             is_left_child = true;
-                    
-    //     //         } else { //value > curr_node_unwrapped.value {
-    //     //             subroot = subroot.right.unwrap().borrow();
-    //     //             is_left_child = false;
-    //     //         }
-    //     //     }
-
-    //     //     // rebalance the tree here i guess and fix colors
-    //     //     fixInsColor();
-    //     // }
-    // }
-
-
-    // // pub fn insert_node(&mut self, value: T) {
-    // //     if self.len == 0 {
-    // //         self.root = Node::new_wrapped(value);
-    // //     } else {
-    // //         let curr_node = &self.root;
-    // //         let curr_node_unwrapped = curr_node.as_ref().unwrap().as_ref().get_mut();
-
-    // //         if value == curr_node_unwrapped.value {
-    // //             return
-    // //         }
-
-
-
-    // //         // loop  {}
-    // //         let curr_node = if value < curr_node_unwrapped.value {
-    // //             curr_node_unwrapped.left
-    // //         } else {
-    // //             curr_node_unwrapped.right
-    // //         };
-
-    // //         let new_node = Node::new(value);
-    // //         new_node.parent = curr_node_unwrapped.parent;
-
-    // //         match curr_node {
-    // //             // _ => Some(Rc::new(RefCell::new(new_node))),
-    // //             Some(sub_node) => self.insert_node(value),
-    // //             None => {
-    // //                 // let temp = Some(Rc::new(RefCell::new(Node::new(value))));
-    // //                 // *curr_node = temp;
-    // //                 *curr_node = Some(Rc::new(RefCell::new(new_node)));
-    // //             },
-    // //             // &mut Some(ref mut sub_node) => sub_node.insert_node(value),
-    // //             // &mut None => {
-    // //             //     let temp = Node { value: value, left_child: None, right_child: None};
-    // //             //     let boxed_node = Some(Box::new(temp));
-    // //             //     *new_node = boxed_node;
-    // //             // }
-    // //         }
-
-    // //         // balance the tree here i guess. need to pass in node tho
-    // //         fixInsColor();
-    // //     }
-    // //     self.len += 1;
-    // // }
