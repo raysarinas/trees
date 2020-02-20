@@ -66,11 +66,14 @@ impl<T> RBTree<T> where T: Clone + PartialEq + Ord {
     
     }
     
-    fn set_left(&self, node: TreeNode<T>, value: T) -> TreeNode<T> {
+    fn set_left(&self, node: TreeNode<T>, value: &T) -> TreeNode<T> {
 
         match node.value {
             Some(curr_node) => {
-                *node.left = TreeNode::new(value)
+                match &node.left {
+                    Some(left) => TreeNode::new(value.clone()),
+                    None => TreeNode::new(value.clone()),
+                }
             },
             None => panic!("bad"),
         }
@@ -79,23 +82,26 @@ impl<T> RBTree<T> where T: Clone + PartialEq + Ord {
     pub fn insert_node(&mut self, value: T) {
 
         if self.is_empty() {
-            self.s
+            self.root = TreeNode::new(value)
         }
-        let mut curr_tree = &mut self.root;
+        let mut root = &mut self.root;
+        let mut curr_tree = Some(root);
 
         // 1. Starting from the root node or with a current node
-        while let mut curr_node = curr_tree {
+        while let Some(curr_node) = curr_tree {
 
-            let curr_node_value = curr_node.value.unwrap();
-
-            match curr_node_value.cmp(&value) {
-                Ordering::Less => curr_tree = &mut set_right(&curr_node, &value),
-                Ordering::Equal => return,
-                Ordering::Greater => curr_tree = &mut set_left(&curr_node, value),
+            let curr_node_value = curr_node.value.as_ref();
+            if curr_node_value.is_some() {
+                match curr_node_value.unwrap().cmp(&value) {
+                    // this is broken
+                    Ordering::Less => curr_tree = Some(&mut self.set_left(*curr_node, &value)), //self.set_right(&curr_node, value), //curr_node.right.clone().unwrap(),
+                    Ordering::Equal => return,
+                    Ordering::Greater => curr_tree = Some(&mut self.set_left(*curr_node, &value)),
+                }
             }
         }
 
-        *curr_tree = TreeNode::new(value);
+        *curr_tree.unwrap() = TreeNode::new(value);
         self.len += 1;
     }
     
