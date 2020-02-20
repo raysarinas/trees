@@ -33,20 +33,24 @@ pub trait NodeTraits<T> {
     fn uncle(&self) -> TreeNode<T>;
     fn set_color(&self, color: NodeColor);
     fn set_value(&self, value: T);
-    fn set_parent(&self, parent: TreeNode<T>);
-    fn set_left(&self, left: TreeNode<T>);
-    fn set_right(&self, right: TreeNode<T>);
+    fn set_parent(&mut self, parent: TreeNode<T>);
+    fn set_left(&mut self, left: TreeNode<T>);
+    fn set_right(&mut self, right: TreeNode<T>);
 }
 
 impl<T> NodeTraits<T> for TreeNode<T> where T: Copy {
     fn new(val: T) -> TreeNode<T> {
-        Some(Rc::new(RefCell::new(Node {
+        let tree_node = Some(Rc::new(RefCell::new(Node {
             color: NodeColor::Red,
             value: Some(val),
             parent: None,
             left: None,
             right: None
-        })))
+        })));
+        tree_node.left().set_parent(tree_node.clone());
+        tree_node.right().set_parent(tree_node.clone());
+
+        tree_node
     }
 
     fn unwrapped(&self) -> Rc<RefCell<Node<T>>> {
@@ -63,7 +67,7 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy {
     fn color(&self) -> NodeColor {
         match self {
             Some(tree_node) => tree_node.borrow().color.clone(),
-            None => panic!("Error getting tree node color")
+            None => NodeColor::Red
         }
     }
 
@@ -115,16 +119,43 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy {
         self.unwrapped().borrow_mut().value = Some(value);
     }
 
-    fn set_parent(&self, parent: TreeNode<T>) {
-        self.unwrapped().borrow_mut().parent = parent;
+    fn set_parent(&mut self, parent: TreeNode<T>) {
+        match self {
+            Some(tree_node) => tree_node.borrow_mut().parent = parent,
+            None => *self = Some(Rc::new(RefCell::new(Node {
+                color: self.color(),
+                value: self.value(),
+                parent: parent,
+                left: self.left(),
+                right: self.right()
+            })))
+        }
     }
 
-    fn set_left(&self, left: TreeNode<T>) {
-        self.unwrapped().borrow_mut().left = left;
+    fn set_left(&mut self, left: TreeNode<T>) {
+        match self {
+            Some(tree_node) => tree_node.borrow_mut().left = left,
+            None => *self = Some(Rc::new(RefCell::new(Node {
+                color: self.color(),
+                value: self.value(),
+                parent: self.parent(),
+                left: left,
+                right: self.right()
+            })))
+        }
     }
 
-    fn set_right(&self, right: TreeNode<T>) {
-        self.unwrapped().borrow_mut().right = right;
+    fn set_right(&mut self, right: TreeNode<T>) {
+        match self {
+            Some(tree_node) => tree_node.borrow_mut().right = right,
+            None => *self = Some(Rc::new(RefCell::new(Node {
+                color: self.color(),
+                value: self.value(),
+                parent: self.parent(),
+                left: self.left(),
+                right: right
+            })))
+        }
     }
 }
 
@@ -228,7 +259,7 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd {
     }
 
     fn insert_node(&mut self, value: T) {
-        let new_node = TreeNode::new(value);
+        let mut new_node = TreeNode::new(value);
 
         if self.root.is_none() {
             self.root = new_node.clone();
@@ -237,10 +268,12 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd {
             return;
         } else {
             let mut curr_node = self.root.clone();
+            let mut curr_node_parent: TreeNode<T> = None;
             let mut is_left_child = true;
 
             // find empty node
             while curr_node.value().is_some() {
+                curr_node_parent = curr_node.clone();
                 if value < curr_node.value().unwrap() {
                     curr_node = curr_node.left();
                     is_left_child = true;
@@ -251,11 +284,15 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd {
             }
             
             // place new_node in found spot
-            new_node.set_parent(curr_node.parent());
-            if is_left_child {
-                curr_node.parent().set_left(new_node.clone());
+            if curr_node_parent.is_some() {
+                new_node.set_parent(curr_node_parent);
+                if is_left_child {
+                    curr_node.parent().set_left(new_node.clone());
+                } else {
+                    curr_node.parent().set_right(new_node.clone());
+                }
             } else {
-                curr_node.parent().set_right(new_node.clone());
+                panic!("Current node has no parent!");
             }
         }
 

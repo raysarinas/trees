@@ -10,7 +10,7 @@ fn main() {
     println!("{:?}", treenode.value());
     println!("{:?}", treenode.color());
 
-    treenode.set_color(red_black_tree::NodeColor::Red);
+    treenode.set_color(red_black_tree::NodeColor::Black);
     println!("{:?}", treenode.color());
 
     treenode.set_value(10);
