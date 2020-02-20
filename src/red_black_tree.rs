@@ -231,7 +231,7 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd {
         let new_node = TreeNode::new(value);
 
         if self.root.is_none() {
-            self.root = TreeNode::new(value);
+            self.root = new_node.clone();
         } else if self.contains(value) {
             println!("Value already exists!");
             return;
