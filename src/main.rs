@@ -30,4 +30,16 @@ fn main() {
     rbt.insert_node(35);
     println!("{}", rbt.size());
     rbt.print();
+
+    rbt.insert_node(8);
+    println!("{}", rbt.size());
+    rbt.print();
+
+    rbt.insert_node(100);
+    println!("{}", rbt.size());
+    rbt.print();
+
+    rbt.insert_node(60);
+    println!("{}", rbt.size());
+    rbt.print();
 }

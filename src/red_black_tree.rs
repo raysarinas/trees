@@ -262,7 +262,7 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
     fn insert_node(&mut self, value: T) {
         let mut new_node = TreeNode::new(value);
 
-        if self.root.is_none() {
+        if self.is_empty() {
             self.root = new_node.clone();
         } else if self.contains(value) {
             println!("Value already exists!");
