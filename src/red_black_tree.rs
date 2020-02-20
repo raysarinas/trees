@@ -8,51 +8,115 @@ enum NodeColor {
     Black,
 }
 
-// type Tree = Rc<RefCell<TreeNode<u32>>>;
-// type RedBlackTree= Option<Tree>;
+type Tree<T> = Rc<RefCell<TreeNode<T>>>;
+type RedBlackTree<T> = Option<Tree<T>>;
 
-struct TreeNode<T> {
-    pub color: NodeColor,
-    pub value: Option<T>,
-    pub parent: Option<Rc<RefCell<TreeNode<T>>>>,
-    left: Option<Rc<RefCell<TreeNode<T>>>>,
-    right: Option<Rc<RefCell<TreeNode<T>>>>
+pub struct TreeNode<T> {
+    color: NodeColor,
+    value: T,
+    parent: RedBlackTree<T>,
+    left: RedBlackTree<T>,
+    right: RedBlackTree<T>
+}
+
+pub trait TreeNodeTraits<T> {
+    fn color(&self) -> NodeColor;
+    fn value(&self) -> T;
+    fn parent(&self) -> RedBlackTree<T>;
+    fn left(&self) -> RedBlackTree<T>;
+    fn right(&self) -> RedBlackTree<T>;
+    fn set_color(&self, color: NodeColor);
+    fn set_value(&self, value: T);
+    fn set_parent(&self, parent: RedBlackTree<T>);
+    fn set_left(&self, left: RedBlackTree<T>);
+    fn set_right(&self, right: RedBlackTree<T>);
 }
 
 impl<T> TreeNode<T> {
-    fn new(val: T) -> TreeNode<T> {
+    pub fn new(val: T) -> TreeNode<T> {
         TreeNode {
             color: NodeColor::Black,
-            value: Some(val),
+            value: val,
             parent: None,
             left: None,
             right: None
         }
     }
 
-    fn is_some(& self) -> bool {
-        match self.value {
-            Some(_) => true,
-            None => false,
-        }
-    }
+    // fn is_some(& self) -> bool {
+    //     match self.value {
+    //         Some(_) => true,
+    //         None => false,
+    //     }
+    // }
 
-    fn new_wrapped(val: T) -> Option<Rc<RefCell<TreeNode<T>>>> {
+    fn new_wrapped(val: T) -> RedBlackTree<T> {
         Some(Rc::new(RefCell::new(TreeNode::new(val))))
     }
 
-    // fn unwrap(node: Option<Rc<RefCell<TreeNode<T>>>>) -> TreeNode<T> {
+    pub fn va(&self) -> T {
+        self.value()
+    }
+
+    // fn unwrap(node: RedBlackTree<T>) -> TreeNode<T> {
     //     node.as_ref().unwrap().as_ref().get_mut()
     // }
 }
 
-struct RBTree<T> {
-    root: Option<Rc<RefCell<TreeNode<T>>>>,
+impl<T> TreeNodeTraits<T> for TreeNode<T> {
+    fn color(&self) -> NodeColor {
+        self.color.clone()
+    }
+
+    fn value(&self) -> T {
+        self.value
+    }
+
+    fn parent(&self) -> RedBlackTree<T> {
+        self.parent.clone()
+    }
+
+    fn left(&self) -> RedBlackTree<T> {
+        self.left.clone()
+    }
+
+    fn right(&self) -> RedBlackTree<T> {
+        self.right.clone()
+    }
+
+    fn set_color(&self, color: NodeColor) {
+        self.color = color;
+    }
+
+    fn set_value(&self, value: T) {
+        self.value = value;
+    }
+
+    fn set_parent(&self, parent: RedBlackTree<T>) {
+        self.parent = parent;
+    }
+
+    fn set_left(&self, left: RedBlackTree<T>) {
+        self.left = left;
+    }
+
+    fn set_right(&self, right: RedBlackTree<T>) {
+        self.right = right;
+    }
+}
+
+pub struct RBTree<T> {
+    root: RedBlackTree<T>,
     len: usize
 }
 
-impl<T> RBTree <T>
-    where T: Ord + PartialEq + PartialOrd {
+impl<T> RBTree <T> where T: Ord + PartialEq + PartialOrd {
+    pub fn new() -> RBTree<T> {
+        RBTree {
+            root: None,
+            len: 0
+        }
+    }
     // fn rotate() {
 
     // }
@@ -93,41 +157,41 @@ impl<T> RBTree <T>
     }
 
     pub fn insert_node2(&mut self, value: T) {
-        if self.len == 0 {
-            self.root = TreeNode::new_wrapped(value);
-        } else {
-            let root_unwrapped = self.root.unwrap().borrow();
-            let mut new_node = TreeNode::new(value);
-            let mut subroot = root_unwrapped;
-            let is_left_child = true;
+        // if self.len == 0 {
+        //     self.root = TreeNode::new_wrapped(value);
+        // } else {
+        //     let root_unwrapped = self.root.unwrap().borrow();
+        //     let mut new_node = TreeNode::new(value);
+        //     let mut subroot = root_unwrapped;
+        //     let is_left_child = true;
 
-            while new_node.value != root_unwrapped.value && new_node.parent.is_none() {
+        //     while new_node.value != root_unwrapped.value && new_node.parent.is_none() {
 
-                if !subroot.is_some() {
+        //         if !subroot.is_some() {
 
-                    // insert at empty node
-                    new_node.parent = subroot.parent;
-                    let mut unwrapped_parent = subroot.parent.unwrap().borrow();
+        //             // insert at empty node
+        //             new_node.parent = subroot.parent;
+        //             let mut unwrapped_parent = subroot.parent.unwrap().borrow();
 
-                    if is_left_child {
-                        unwrapped_parent.left = TreeNode::new_wrapped(value);
-                    } else {
-                        unwrapped_parent.right = TreeNode::new_wrapped(value);
-                    }
+        //             if is_left_child {
+        //                 unwrapped_parent.left = TreeNode::new_wrapped(value);
+        //             } else {
+        //                 unwrapped_parent.right = TreeNode::new_wrapped(value);
+        //             }
 
-                } else if value < subroot.value.unwrap() {
-                    subroot = subroot.left.unwrap().borrow();
-                    is_left_child = true;
+        //         } else if value < subroot.value.unwrap() {
+        //             subroot = subroot.left.unwrap().borrow();
+        //             is_left_child = true;
                     
-                } else { //value > curr_node_unwrapped.value {
-                    subroot = subroot.right.unwrap().borrow();
-                    is_left_child = false;
-                }
-            }
+        //         } else { //value > curr_node_unwrapped.value {
+        //             subroot = subroot.right.unwrap().borrow();
+        //             is_left_child = false;
+        //         }
+        //     }
 
-            // rebalance the tree here i guess and fix colors
-            fixInsColor();
-        }
+        //     // rebalance the tree here i guess and fix colors
+        //     fixInsColor();
+        // }
     }
 
 
