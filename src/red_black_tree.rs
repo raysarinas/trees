@@ -23,11 +23,14 @@ pub struct Node<T> {
 pub trait NodeTraits<T> {
     fn new(val: T) -> TreeNode<T>;
     fn unwrapped(&self) -> Rc<RefCell<Node<T>>>;
+    fn compare(&self, node: &TreeNode<T>) -> bool;
     fn color(&self) -> NodeColor;
     fn value(&self) -> Option<T>;
     fn parent(&self) -> TreeNode<T>;
     fn left(&self) -> TreeNode<T>; 
     fn right(&self) -> TreeNode<T>;
+    fn grandparent(&self) -> TreeNode<T>;
+    fn uncle(&self) -> TreeNode<T>;
     fn set_color(&self, color: NodeColor);
     fn set_value(&self, value: T);
     fn set_parent(&self, parent: TreeNode<T>);
@@ -38,7 +41,7 @@ pub trait NodeTraits<T> {
 impl<T> NodeTraits<T> for TreeNode<T> where T: Copy {
     fn new(val: T) -> TreeNode<T> {
         Some(Rc::new(RefCell::new(Node {
-            color: NodeColor::Black,
+            color: NodeColor::Red,
             value: Some(val),
             parent: None,
             left: None,
@@ -51,6 +54,10 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy {
             Some(tree_node) => Rc::clone(&tree_node),
             None => panic!("Error unwrapping tree node")
         }
+    }
+
+    fn compare(&self, node: &TreeNode<T>) -> bool {
+        Rc::ptr_eq(&self.unwrapped(), &node.unwrapped())
     }
 
     fn color(&self) -> NodeColor {
@@ -70,21 +77,33 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy {
     fn parent(&self) -> TreeNode<T> {
         match self {
             Some(tree_node) => tree_node.borrow().parent.clone(),
-            None => panic!("Error getting tree node parent")
+            None => None
         }
     }
 
     fn left(&self) -> TreeNode<T> {
         match self {
             Some(tree_node) => tree_node.borrow().left.clone(),
-            None => panic!("Error getting tree node left child")
+            None => None
         }
     }
 
     fn right(&self) -> TreeNode<T> {
         match self {
             Some(tree_node) => tree_node.borrow().right.clone(),
-            None => panic!("Error getting tree node right child")
+            None => None
+        }
+    }
+
+    fn grandparent(&self) -> TreeNode<T> {
+        self.parent().parent()
+    }
+
+    fn uncle(&self) -> TreeNode<T> {
+        if self.parent().compare(&self.grandparent().left()) {
+            self.grandparent().right()
+        } else {
+            self.grandparent().left()
         }
     }
 
@@ -124,7 +143,7 @@ pub trait RBTreeTraits<T> {
     fn contains(&self, value: T) -> bool;
     fn rotate_left(&self, node: TreeNode<T>);
     fn rotate_right(&self, node: TreeNode<T>);
-    fn fix_insert_color(&self, node: TreeNode<T>);
+    fn fix_insert_color(&self, node: &TreeNode<T>);
     fn fix_delete_color(&self, node: TreeNode<T>);
     fn insert_node(&mut self, value: T);
     fn delete_node(&self, value: T);
@@ -187,8 +206,25 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd {
     }
 
     // TODO
-    fn fix_insert_color(&self, node: TreeNode<T>) {
-
+    fn fix_insert_color(&self, node: &TreeNode<T>) {
+        // case 1
+        if node.compare(&self.root) {
+            node.set_color(NodeColor::Black);
+        // case 2
+        } else if node.parent().color() == NodeColor::Black {
+            return;
+        // case 3
+        } else if node.parent().color() == NodeColor::Red && node.uncle().color() == NodeColor::Red {
+            node.parent().set_color(NodeColor::Black);
+            node.uncle().set_color(NodeColor::Black);
+            node.grandparent().set_color(NodeColor::Red);
+            self.fix_insert_color(&node.grandparent());
+        // case 4
+        } else if node.parent().color() == NodeColor::Red && node.uncle().color() == NodeColor::Black {
+            // do some more stuff
+        } else {
+            // error handling here yay
+        }
     }
 
     fn insert_node(&mut self, value: T) {
@@ -202,7 +238,8 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd {
         } else {
             let mut curr_node = self.root.clone();
             let mut is_left_child = true;
-            
+
+            // find empty node
             while curr_node.value().is_some() {
                 if value < curr_node.value().unwrap() {
                     curr_node = curr_node.left();
@@ -213,6 +250,7 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd {
                 }
             }
             
+            // place new_node in found spot
             new_node.set_parent(curr_node.parent());
             if is_left_child {
                 curr_node.parent().set_left(new_node.clone());
@@ -221,7 +259,7 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd {
             }
         }
 
-        self.fix_insert_color(new_node.clone());
+        self.fix_insert_color(&new_node);
         self.len += 1;
     }
 
