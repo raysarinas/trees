@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::f32;
 
 #[derive(Clone, Debug, PartialEq)]
 
@@ -36,6 +37,7 @@ pub trait NodeTraits<T> {
     fn set_parent(&mut self, parent: TreeNode<T>);
     fn set_left(&mut self, left: TreeNode<T>);
     fn set_right(&mut self, right: TreeNode<T>);
+    fn node_height(&self) -> usize;
 }
 
 impl<T> NodeTraits<T> for TreeNode<T> where T: Copy {
@@ -157,6 +159,25 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy {
             })))
         }
     }
+
+    fn node_height(&self) -> usize {
+
+        let left_height = match &*self {
+            Some(_) => self.left().node_height(),
+            None => 0,
+        };
+        let right_height = match &*self {
+            Some(_) => self.right().node_height(),
+            None => 0,
+        };
+
+        if left_height > right_height {
+            left_height + 1
+        } else {
+            right_height + 1
+        }
+
+    }
 }
 
 /******************** RBTree Helpers ********************/
@@ -192,26 +213,14 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
 
     // TODO
     fn height(&self) -> usize {
-        // // TODO: add match statements for left and right heights
-        // // need to borrow and match stuff. see commented code below
 
-        // let left_height = self.root.left;
-        // let right_height = self.root.right;
-
-        // let left_height = match *self.left.borrow() {
-        //     Some(ref left) => left.height(),
-        //     None => 0,
-        // };
-        // let right_height = match *self.right.borrow() {
-        //     Some(ref right) => right.height(),
-        //     None => 0,
-        // };
-        // if left_height > right_height {
-        //     left_height += 1;
-        // } else {
-        //     right_height += 1;
-        // }
-        0
+        if self.len > 1 {
+            let length = self.len as f32;
+            length.log2() as usize
+            // self.root.node_height()
+        } else {
+            0
+        }
     }
 
     fn is_empty(&self) -> bool {
@@ -229,6 +238,9 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
 
     // TODO
     fn rotate_left(&self, node: TreeNode<T>) {
+        let parent = node.parent();
+        let grandparent = node.grandparent();
+        let left = node.left();
 
     }
 
@@ -239,6 +251,8 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
 
     // TODO
     fn fix_insert_color(&self, node: &TreeNode<T>) {
+
+
         // case 1
         if node.compare(&self.root) {
             node.set_color(NodeColor::Black);
@@ -253,6 +267,10 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
             self.fix_insert_color(&node.grandparent());
         // case 4
         } else if node.parent().color() == NodeColor::Red && node.uncle().color() == NodeColor::Black {
+            // if node == node.parent().right() && node.parent() == node.grandparent().left() {
+            //     rotate_left(node);
+            // }
+            // else if node == node.parent
             // do some more stuff
         } else {
             // error handling here yay
