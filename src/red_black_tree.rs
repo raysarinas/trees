@@ -206,7 +206,7 @@ pub trait RBTreeTraits<T> {
     fn height(&self) -> usize;
     fn is_empty(&self) -> bool;
     fn size(&self) -> usize;
-    fn contains(&self, value: T) -> bool;
+    fn search(&self, value: T) -> TreeNode<T>;
     fn rotate_left(&mut self, node: &TreeNode<T>);
     fn rotate_right(&mut self, node: &TreeNode<T>);
     fn insert_case5(&mut self, node: &TreeNode<T>);
@@ -245,9 +245,9 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         self.len
     }
 
-    // TODO (extra thing i guess)
-    fn contains(&self, value: T) -> bool {
-        false
+    // TODO
+    fn search(&self, value: T) -> TreeNode<T> {
+        None
     }
 
     fn rotate_left(&mut self, node: &TreeNode<T>) {
@@ -347,7 +347,7 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
 
         if self.is_empty() {
             self.root = new_node.clone();
-        } else if self.contains(value) {
+        } else if self.search(value).is_some() {
             println!("Value already exists!");
             return;
         } else {
@@ -391,7 +391,7 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
 
     // TODO
     fn delete_node(&mut self, value: T) {
-
+        let mut node = self.search(value);
     }
 
     fn print(&self) {
