@@ -1,6 +1,5 @@
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::f32;
 
 #[derive(Clone, Debug, PartialEq)]
 
@@ -25,6 +24,7 @@ pub trait NodeTraits<T> {
     fn new(val: T) -> TreeNode<T>;
     fn unwrapped(&self) -> Rc<RefCell<Node<T>>>;
     fn compare(&self, node: &TreeNode<T>) -> bool;
+    fn node_height(&self) -> usize;
     fn color(&self) -> NodeColor;
     fn value(&self) -> Option<T>;
     fn parent(&self) -> TreeNode<T>;
@@ -37,7 +37,6 @@ pub trait NodeTraits<T> {
     fn set_parent(&mut self, parent: TreeNode<T>);
     fn set_left(&mut self, left: TreeNode<T>);
     fn set_right(&mut self, right: TreeNode<T>);
-    fn node_height(&self) -> usize;
 }
 
 impl<T> NodeTraits<T> for TreeNode<T> where T: Copy {
@@ -64,6 +63,22 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy {
 
     fn compare(&self, node: &TreeNode<T>) -> bool {
         Rc::ptr_eq(&self.unwrapped(), &node.unwrapped())
+    }
+
+    fn node_height(&self) -> usize {
+        match self {
+            Some(_) => {
+                let left_height = self.left().node_height();
+                let right_height = self.right().node_height();
+
+                if left_height > right_height {
+                    left_height + 1
+                } else {
+                    right_height + 1
+                }
+            },
+            None => 0
+        }
     }
 
     fn color(&self) -> NodeColor {
@@ -159,25 +174,6 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy {
             })))
         }
     }
-
-    fn node_height(&self) -> usize {
-
-        let left_height = match &*self {
-            Some(_) => self.left().node_height(),
-            None => 0,
-        };
-        let right_height = match &*self {
-            Some(_) => self.right().node_height(),
-            None => 0,
-        };
-
-        if left_height > right_height {
-            left_height + 1
-        } else {
-            right_height + 1
-        }
-
-    }
 }
 
 /******************** RBTree Helpers ********************/
@@ -211,16 +207,16 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         }
     }
 
-    // TODO
+    // TODO ask miller if leaf nodes are included
     fn height(&self) -> usize {
+        self.root.node_height()
 
-        if self.len > 1 {
-            let length = self.len as f32;
-            length.log2() as usize
-            // self.root.node_height()
-        } else {
-            0
-        }
+        // use code below if leaf nodes are included
+        // if self.len >= 1 {
+        //     self.root.node_height() + 1
+        // } else {
+        //     0
+        // }
     }
 
     fn is_empty(&self) -> bool {
@@ -251,8 +247,6 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
 
     // TODO
     fn fix_insert_color(&self, node: &TreeNode<T>) {
-
-
         // case 1
         if node.compare(&self.root) {
             node.set_color(NodeColor::Black);
