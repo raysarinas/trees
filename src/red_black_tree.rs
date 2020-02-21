@@ -25,6 +25,7 @@ pub trait NodeTraits<T> {
     fn unwrapped(&self) -> Rc<RefCell<Node<T>>>;
     fn compare(&self, node: &TreeNode<T>) -> bool;
     fn node_height(&self) -> usize;
+    fn print_traversal(&self);
     fn color(&self) -> NodeColor;
     fn value(&self) -> Option<T>;
     fn parent(&self) -> TreeNode<T>;
@@ -39,7 +40,7 @@ pub trait NodeTraits<T> {
     fn set_right(&mut self, right: TreeNode<T>);
 }
 
-impl<T> NodeTraits<T> for TreeNode<T> where T: Copy {
+impl<T> NodeTraits<T> for TreeNode<T> where T: Copy + std::fmt::Debug {
     fn new(val: T) -> TreeNode<T> {
         let tree_node = Some(Rc::new(RefCell::new(Node {
             color: NodeColor::Red,
@@ -78,6 +79,18 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy {
                 }
             },
             None => 0
+        }
+    }
+
+    fn print_traversal(&self) {
+        if self.is_some() && self.value().is_some() {
+            self.left().print_traversal();
+            if self.color() == NodeColor::Red {
+                print!("<{:?}>", self.value().unwrap());
+            } else {
+                print!("[{:?}]", self.value().unwrap());
+            }
+            self.right().print_traversal();
         }
     }
 
@@ -195,7 +208,6 @@ pub trait RBTreeTraits<T> {
     fn fix_delete_color(&self, node: TreeNode<T>);
     fn insert_node(&mut self, value: T);
     fn delete_node(&self, value: T);
-    fn in_order_traversal(&self, node: &TreeNode<T>);
     fn print(&self);
 }
 
@@ -323,20 +335,8 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
 
     }
 
-    fn in_order_traversal(&self, node: &TreeNode<T>) {
-        if node.is_some() && node.value().is_some() {
-            self.in_order_traversal(&node.left());
-            if node.color() == NodeColor::Red {
-                print!("<{:?}>", node.value().unwrap());
-            } else {
-                print!("[{:?}]", node.value().unwrap());
-            }
-            self.in_order_traversal(&node.right());
-        }
-    }
-
     fn print(&self) {
-        self.in_order_traversal(&self.root);
+        self.root.print_traversal();
         println!();
     }
 }
