@@ -63,6 +63,9 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy + std::fmt::Debug {
     }
 
     fn compare(&self, node: &TreeNode<T>) -> bool {
+        if self.is_none() || node.is_none() {
+            return false
+        }
         Rc::ptr_eq(&self.unwrapped(), &node.unwrapped())
     }
 
@@ -97,7 +100,7 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy + std::fmt::Debug {
     fn color(&self) -> NodeColor {
         match self {
             Some(tree_node) => tree_node.borrow().color.clone(),
-            None => NodeColor::Red
+            None => NodeColor::Black // nil nodes are black
         }
     }
 
@@ -134,7 +137,9 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy + std::fmt::Debug {
     }
 
     fn uncle(&self) -> TreeNode<T> {
-        if self.parent().compare(&self.grandparent().left()) {
+        if self.grandparent().left().is_none() || self.grandparent().right().is_none() {
+            None
+        } else if self.parent().compare(&self.grandparent().left()) {
             self.grandparent().right()
         } else {
             self.grandparent().left()
@@ -202,12 +207,13 @@ pub trait RBTreeTraits<T> {
     fn is_empty(&self) -> bool;
     fn size(&self) -> usize;
     fn contains(&self, value: T) -> bool;
-    fn rotate_left(&self, node: TreeNode<T>);
-    fn rotate_right(&self, node: TreeNode<T>);
-    fn fix_insert_color(&self, node: &TreeNode<T>);
-    fn fix_delete_color(&self, node: TreeNode<T>);
+    fn rotate_left(&mut self, node: &TreeNode<T>);
+    fn rotate_right(&mut self, node: &TreeNode<T>);
+    fn insert_case5(&mut self, node: &TreeNode<T>);
+    fn fix_insert_color(&mut self, node: &TreeNode<T>);
+    fn fix_delete_color(&mut self, node: &TreeNode<T>);
     fn insert_node(&mut self, value: T);
-    fn delete_node(&self, value: T);
+    fn delete_node(&mut self, value: T);
     fn print(&self);
 }
 
@@ -244,21 +250,71 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         false
     }
 
-    // TODO
-    fn rotate_left(&self, node: TreeNode<T>) {
-        let parent = node.parent();
-        let grandparent = node.grandparent();
-        let left = node.left();
+    fn rotate_left(&mut self, node: &TreeNode<T>) {
+        let mut parent = node.parent().clone();
+        let mut grandparent = node.grandparent().clone();
+        let mut node = node.clone();
 
+        if parent.compare(&self.root) {
+            self.root = node.clone();
+        } else {
+            node.set_parent(grandparent.clone());
+            if parent.compare(&grandparent.left()) {
+                grandparent.set_left(node.clone());
+            } else {
+                grandparent.set_right(node.clone());
+            }
+        }
+
+        if node.left().is_some() {
+            node.left().set_parent(parent.clone());
+        }
+
+        parent.set_right(node.left().clone());
+        node.set_left(parent.clone());
+        parent.set_parent(node.clone());
     }
 
-    // TODO
-    fn rotate_right(&self, node: TreeNode<T>) {
+    fn rotate_right(&mut self, node: &TreeNode<T>) {
+        let mut parent = node.parent().clone();
+        let mut grandparent = node.grandparent().clone();
+        let mut node = node.clone();
 
+        if parent.compare(&self.root) {
+            self.root = node.clone();
+        } else {
+            node.set_parent(grandparent.clone());
+            if parent.compare(&grandparent.left()) {
+                grandparent.set_left(node.clone());
+            } else {
+                grandparent.set_right(node.clone());
+            }
+        }
+
+        if node.right().is_some() {
+            node.right().set_parent(parent.clone());
+        }
+
+        parent.set_left(node.right().clone());
+        node.set_right(parent.clone());
+        parent.set_parent(node.clone());
     }
 
-    // TODO
-    fn fix_insert_color(&self, node: &TreeNode<T>) {
+    fn insert_case5(&mut self, node: &TreeNode<T>) {
+        let parent = node.parent().clone();
+        let grandparent = node.grandparent().clone();
+
+        if node.compare(&parent.left()) {
+            self.rotate_right(&parent);
+        } else {
+            self.rotate_left(&parent);
+        }
+
+        parent.set_color(NodeColor::Black);
+        grandparent.set_color(NodeColor::Red);
+    }
+
+    fn fix_insert_color(&mut self, node: &TreeNode<T>) {
         // case 1
         if node.compare(&self.root) {
             node.set_color(NodeColor::Black);
@@ -266,20 +322,23 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         } else if node.parent().color() == NodeColor::Black {
             return;
         // case 3
-        } else if node.parent().color() == NodeColor::Red && node.uncle().color() == NodeColor::Red {
+        } else if node.uncle().is_some() && node.uncle().color() == NodeColor::Red {
             node.parent().set_color(NodeColor::Black);
             node.uncle().set_color(NodeColor::Black);
             node.grandparent().set_color(NodeColor::Red);
             self.fix_insert_color(&node.grandparent());
         // case 4
-        } else if node.parent().color() == NodeColor::Red && node.uncle().color() == NodeColor::Black {
-            // if node == node.parent().right() && node.parent() == node.grandparent().left() {
-            //     rotate_left(node);
-            // }
-            // else if node == node.parent
-            // do some more stuff
-        } else {
-            // error handling here yay
+        } else if node.uncle().color() == NodeColor::Black {    // uncle can be a nil node
+            let parent = node.parent().clone();
+            let grandparent = node.grandparent().clone();
+
+            if node.compare(&parent.right()) && parent.compare(&grandparent.left()) {
+                self.rotate_left(&node);
+                self.insert_case5(&node.left());
+            } else if node.compare(&parent.left()) && parent.compare(&grandparent.right()) {
+                self.rotate_right(&node);
+                self.insert_case5(&node.right());
+            }
         }
     }
 
@@ -321,21 +380,22 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
             }
         }
 
-        // self.fix_insert_color(&new_node);
+        self.fix_insert_color(&new_node);
         self.len += 1;
     }
 
     // TODO
-    fn fix_delete_color(&self, node: TreeNode<T>) {
+    fn fix_delete_color(&mut self, node: &TreeNode<T>) {
 
     }
 
     // TODO
-    fn delete_node(&self, value: T) {
+    fn delete_node(&mut self, value: T) {
 
     }
 
     fn print(&self) {
+        println!("Root: {:?}", self.root.value().unwrap());
         self.root.print_traversal();
         println!();
     }
