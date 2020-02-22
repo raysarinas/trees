@@ -436,8 +436,12 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
     }
 
     fn print(&self) {
-        println!("Root: {:?}", self.root.value().unwrap());
-        self.root.print_traversal();
-        println!();
+        if self.is_empty() {
+            println!("Tree is empty. Nothing to print.");
+        } else {
+            println!("Root: {:?}", self.root.value().unwrap());
+            self.root.print_traversal();
+            println!();
+        }
     }
 }
