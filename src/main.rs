@@ -7,7 +7,7 @@ use tests::*;
 
 use std::io::{stdin, stdout, Write};
 
-static MAIN_MENU:&str = "
+static MAIN_MENU: &str = "
 1. Red Black Tree
 2. AVL Tree
 3. Run benchmark tests
@@ -15,6 +15,7 @@ static MAIN_MENU:&str = "
 ";
 
 static RBT_MENU: &str = "
+RED-BLACK TREE
 1. Insert a node to the red-black tree
 2. Delete a node from the red-black tree
 3. Count the number of leaves in the tree
@@ -25,6 +26,7 @@ static RBT_MENU: &str = "
 ";
 
 static AVL_MENU: &str = "
+AVL TREE
 1. Insert a node to the AVL tree
 2. Delete a node from the AVL tree
 3. Count the number of leaves in the tree
@@ -34,9 +36,9 @@ static AVL_MENU: &str = "
 7. Return to main menu
 ";
 
-fn get_value() -> u32 {
+fn get_input(prompt: &str) -> u32 {
     loop {
-        print!("Value: ");
+        print!("{} ", prompt);
         stdout().flush().unwrap();
         let mut value = String::new();
         stdin().read_line(&mut value).expect("Failed to read line");
@@ -48,32 +50,10 @@ fn get_value() -> u32 {
     }
 }
 
-fn get_choice(num_items: u32) -> u32 {
-    loop {
-        print!("> ");
-        stdout().flush().unwrap();
-        let mut choice = String::new();
-        stdin().read_line(&mut choice).expect("Failed to read line");
-
-        let choice_parsed: u32 = match choice.trim().parse() {
-            Ok(num) => num,
-            Err(_) => continue
-        };
-
-        if num_items < choice_parsed {
-            println!("Invalid input");
-        } else {
-            return choice_parsed;
-        }
-    }
-}
-
 fn avl() {
-    print!("\nAVL TREE");
-
     loop {
         println!("{}", AVL_MENU);
-        let choice = get_choice(7);
+        let choice = get_input(">");
         match choice {
             1 => {},
             2 => {},
@@ -88,17 +68,14 @@ fn avl() {
 }
 
 fn rbt() {
-    print!("\nRED-BLACK TREE");
-
     // not sure what to use for type
     let mut rbt: red_black_tree::RBTree<u32> = red_black_tree::RBTree::new();
     loop {
         println!("{}", RBT_MENU);
-        let choice = get_choice(7);
+        let choice = get_input(">");
         match choice {
             1 => {
-                println!("\n[INSERT]");
-                let value = get_value();
+                let value = get_input("Value to insert:");
                 rbt.insert_node(value); // TODO: error handling?
                 println!("Inserted {}", value);
             },
@@ -123,7 +100,7 @@ fn main_menu() {
     println!("{}", MAIN_MENU);
 
     loop {
-        let choice = get_choice(4);
+        let choice = get_input(">");
         match choice {
             1 => rbt(),
             2 => avl(),
