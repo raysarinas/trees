@@ -93,4 +93,16 @@ fn main() {
     rbt.print();
     println!("height = {}", rbt.height());
     println!();
+
+    assert!(rbt.search(35).is_some());
+    assert!(rbt.search(5).is_some());
+    assert!(rbt.search(1).is_some());
+    assert!(rbt.search(8).is_some());
+    assert!(rbt.search(17).is_some());
+    assert!(rbt.search(60).is_some());
+    assert!(rbt.search(70).is_some());
+    assert!(rbt.search(84).is_some());
+    assert!(rbt.search(100).is_some());
+    assert!(rbt.search(120).is_some());
+    assert!(rbt.search(10).is_none());
 }

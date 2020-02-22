@@ -38,9 +38,10 @@ pub trait NodeTraits<T> {
     fn set_parent(&mut self, parent: TreeNode<T>);
     fn set_left(&mut self, left: TreeNode<T>);
     fn set_right(&mut self, right: TreeNode<T>);
+    fn find_node(&self, value: T) -> TreeNode<T>;
 }
 
-impl<T> NodeTraits<T> for TreeNode<T> where T: Copy + std::fmt::Debug {
+impl<T> NodeTraits<T> for TreeNode<T> where T: Copy + PartialOrd + std::fmt::Debug {
     fn new(val: T) -> TreeNode<T> {
         let tree_node = Some(Rc::new(RefCell::new(Node {
             color: NodeColor::Red,
@@ -192,6 +193,21 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy + std::fmt::Debug {
             })))
         }
     }
+
+    fn find_node(&self, value: T) -> TreeNode<T> {
+        match self {
+            Some(_) => {
+                if value == self.value().unwrap() {
+                    self.clone()
+                } else if value < self.value().unwrap() {
+                    self.left().find_node(value)
+                }else {
+                    self.right().find_node(value)
+                    }
+            }, 
+            None => None
+        }
+    }
 }
 
 /******************** RBTree Helpers ********************/
@@ -245,9 +261,16 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         self.len
     }
 
-    // TODO
+    // TODO: refactor because the code works but is bad lol
     fn search(&self, value: T) -> TreeNode<T> {
-        None
+
+        if self.root.is_none() {
+            return None
+        } else if self.root.value().unwrap() == value {
+            return self.root.clone()
+        } else {
+            self.root.find_node(value)
+        }
     }
 
     fn rotate_left(&mut self, node: &TreeNode<T>) {
@@ -391,7 +414,25 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
 
     // TODO
     fn delete_node(&mut self, value: T) {
-        let mut node = self.search(value);
+        // let mut node = self.search(value);
+
+        // if node.is_none() {
+        //     return;
+        // }
+
+        // if node.left().is_some() && node.right().is_some() {
+        //     let mut larger = node.right();
+        //     let larger_value = larger.unwrapped();
+
+        //     // larger.set_value(node.unwrapped());
+
+        // }
+
+        // let old_node = node;
+        // // set node to null sibling
+        // if node.right().is_none() {
+        //     node.set_value(node.left());
+        // }
     }
 
     fn print(&self) {
