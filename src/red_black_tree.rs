@@ -354,14 +354,17 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         } else if node.uncle().color() == NodeColor::Black {    // uncle can be a nil node
             let parent = node.parent().clone();
             let grandparent = node.grandparent().clone();
+            let mut node = node.clone();
 
             if node.compare(&parent.right()) && parent.compare(&grandparent.left()) {
                 self.rotate_left(&node);
-                self.insert_case5(&node.left());
+                node = node.left().clone();
             } else if node.compare(&parent.left()) && parent.compare(&grandparent.right()) {
                 self.rotate_right(&node);
-                self.insert_case5(&node.right());
+                node = node.right().clone();
             }
+
+            self.insert_case5(&node);
         }
     }
 
