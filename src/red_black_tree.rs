@@ -233,6 +233,7 @@ pub trait RBTreeTraits<T> {
     fn insert_node(&mut self, value: T);
     fn delete_node(&mut self, value: T);
     fn print(&self);
+    fn get_higher_node(node: &TreeNode<T>) -> TreeNode<T>;
 }
 
 impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
@@ -396,32 +397,157 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         self.len += 1;
     }
 
-    // TODO
+    // TODO - fill out commented code and actually test
     fn fix_delete_color(&mut self, node: &TreeNode<T>) {
 
+        // case 1
+        if node.parent().is_some() {
+            // find sibling
+            let sibling = match node.compare(&node.parent().left()) {
+                true => node.parent().right(),
+                false => node.parent().left(),
+            };
+
+            // case 2
+            if sibling.color() == NodeColor::Red {
+                sibling.parent().set_color(NodeColor::Red);
+                sibling.set_color(NodeColor::Black);
+
+                if node.compare(&node.parent().left()) {
+                    // rotate_left();
+                } else {
+                    // rotate_right();
+                }
+
+                // update sibling
+                if node.compare(&node.parent().left()) {
+                    // sibling = node.parent().right()
+                } else {
+                    // sibling = node.parent().left()
+                }
+            }
+
+            if sibling.left().is_some() && sibling.right().is_some() {
+                // case 3
+                // there is was a super long IF statement so i broke it into a nested one
+                if node.parent().color() == NodeColor::Black && sibling.color() == NodeColor::Black {
+                    if sibling.left().color() == NodeColor::Black && sibling.right().color() == NodeColor::Black {
+                        sibling.set_color(NodeColor::Red);
+                        self.fix_delete_color(&node.parent());
+                    }
+                }
+                // case 4
+                else if node.parent().color() == NodeColor::Red && sibling.color() == NodeColor::Black {
+                    if sibling.left().color() == NodeColor::Black && sibling.right().color() == NodeColor::Black {
+                        sibling.set_color(NodeColor::Red);
+                        node.parent().set_color(NodeColor::Black);
+                    }
+                }
+                // case 5
+                else {
+                   if sibling.color() == NodeColor::Black {
+                       if node.compare(&node.parent().left()) {
+                           if sibling.left().color() == NodeColor::Red && sibling.right().color() == NodeColor::Black {
+                               sibling.set_color(NodeColor::Red);
+                               sibling.left().set_color(NodeColor::Black);
+                               // rotate_right(sibling.left());
+                           }
+                       }
+                       else if node.compare(&node.parent().right()) {
+                        if sibling.left().color() == NodeColor::Black && sibling.right().color() == NodeColor::Red {
+                            sibling.set_color(NodeColor::Red);
+                            sibling.right().set_color(NodeColor::Black);
+                            // rotate_left(sibling.left());
+                        }
+                    }
+
+                    // update sibling
+                    if node.compare(&node.parent().left()) {
+                        // sibling = node.parent().right();
+                    } else {
+                        // sibling node.parent().left();
+                    }
+                   }
+
+
+                   // case 6
+                   sibling.set_color(node.parent().color());
+                   node.parent().set_color(NodeColor::Black);
+                   if node.compare(&node.parent().left()) {
+                       sibling.right().set_color(NodeColor::Black);
+                       // rotate_left(sibling);
+                   } else {
+                       sibling.left().set_color(NodeColor::Black);
+                       // rotate_right(sibling);
+                   }
+
+                }
+            }
+        }
     }
 
+    fn get_higher_node(node: &TreeNode<T>) -> TreeNode<T> {
+        if node.left().is_none() {
+            node.clone()
+        } else {
+            return Self::get_higher_node(&node.left())
+        }
+    }
     // TODO
     fn delete_node(&mut self, value: T) {
-        // let mut node = self.search(value);
+        let mut node = self.search(value);
 
-        // if node.is_none() {
-        //     return;
-        // }
+        if node.is_none() {
+            return;
+        }
 
-        // if node.left().is_some() && node.right().is_some() {
-        //     let mut larger = node.right();
-        //     let larger_value = larger.unwrapped();
+        if node.left().is_some() && node.right().is_some() {
+            let larger = Self::get_higher_node(&node.right());
 
-        //     // larger.set_value(node.unwrapped());
+            let temp = larger.value();
+            // TODO
+            // not sure how to set "larger"'s value to be the node value
+            // if there is a swap function from Rc or RefCell that would
+            // help a lot I think
+            // larger.set_value(node.unwrapped().clone());
+            node.set_value(temp.unwrap());
+        }
 
-        // }
+        let old_node = node.clone();
+        // set node to null sibling
+        if node.right().is_none() {
+            node.set_value(node.left().value().unwrap());
+        } else {
+            node.set_value(node.right().value().unwrap());
+        }
 
-        // let old_node = node;
-        // // set node to null sibling
-        // if node.right().is_none() {
-        //     node.set_value(node.left());
-        // }
+        // link child to parent if node is not root
+        if !old_node.compare(&self.root) && old_node.parent().is_some() {
+            node.set_parent(old_node.parent());
+
+            if old_node.compare(&old_node.parent().left()) {
+                old_node.parent().set_left(node.clone());
+            } else {
+                old_node.parent().set_right(node.clone());
+            }
+        } else if node.is_none() {
+            // empty tree if child is None
+            self.root = None;
+        } else {
+            // set root to child
+            self.root.set_value(node.value().unwrap());
+            node.set_parent(None);
+        }
+
+        if old_node.color() == NodeColor::Black {
+            if node.color() == NodeColor::Red {
+                node.set_color(NodeColor::Black);
+            } else {
+                self.fix_delete_color(&node);
+            }
+        }
+
+        self.len -= 1;
     }
 
     fn print(&self) {
