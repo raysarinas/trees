@@ -69,7 +69,7 @@ fn avl() {
 
 fn rbt() {
     // not sure what to use for type
-    let mut rbt: red_black_tree::RBTree<u32> = red_black_tree::RBTree::new();
+    let mut rbt: RBTree<u32> = RBTree::new();
     loop {
         println!("{}", RBT_MENU);
         let choice = get_input(">");
