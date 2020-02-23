@@ -204,7 +204,7 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy + PartialOrd + std::fmt::Deb
                     self.clone()
                 } else if value < self.value().unwrap() {
                     self.left().find_node(value)
-                }else {
+                } else {
                     self.right().find_node(value)
                     }
             }, 
@@ -234,6 +234,7 @@ pub trait RBTreeTraits<T> {
     fn delete_node(&mut self, value: T);
     fn print(&self);
     fn get_higher_node(node: &TreeNode<T>) -> TreeNode<T>;
+    fn count_leaves(&self) -> usize;
 }
 
 impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
@@ -264,7 +265,6 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         self.len
     }
 
-    // TODO: refactor because the code works but is bad lol
     fn search(&self, value: T) -> TreeNode<T> {
 
         if self.root.is_none() {
@@ -361,6 +361,7 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         if self.is_empty() {
             self.root = new_node.clone();
         } else if self.search(value).is_some() {
+            // TODO: should this just be a print? should we panic or do other stuff
             println!("Value already exists!");
             return;
         } else {
@@ -558,5 +559,17 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
             self.root.print_traversal();
             println!();
         }
+    }
+
+    // TODO count number of leaves
+    // maybe related to size() idk?
+    #[allow(unused_mut)]
+    fn count_leaves(&self) -> usize {
+        let mut num_leaves = 0;
+        // let mut curr_node = self.root;
+        // while curr_node.is_some() {
+        //     if curr_node.left()
+        // }
+        num_leaves
     }
 }
