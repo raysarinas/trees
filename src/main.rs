@@ -61,7 +61,7 @@ fn avl() {
             4 => {},
             5 => {},
             6 => {},
-            7 => {},
+            7 => break,
             _ => println!("Invalid input!")
         }
     }
@@ -90,16 +90,15 @@ fn rbt() {
                     println!("nah tree is full of leaves");
                 }
             }
-            7 => main_menu(), // would be nice to clear stack here
+            7 => break,
             _ => println!("Invalid input!")
         }
     }
 }
 
-fn main_menu() {
-    println!("{}", MAIN_MENU);
-
+fn main() {
     loop {
+        println!("{}", MAIN_MENU);
         let choice = get_input(">");
         match choice {
             1 => rbt(),
@@ -107,13 +106,9 @@ fn main_menu() {
             3 => it_works(),
             4 => {
                 println!("ok bye");
-                std::process::exit(0);
+                break;
             },
             _ => println!("Invalid input!")
         }
     }
-}
-
-fn main() {
-    main_menu();
 }
