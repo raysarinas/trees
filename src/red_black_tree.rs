@@ -24,11 +24,15 @@ pub struct Node<T> {
 }
 
 pub trait NodeTraits<T> {
+    // helper functions
     fn new(val: T) -> TreeNode<T>;
     fn unwrapped(&self) -> Rc<RefCell<Node<T>>>;
     fn compare(&self, node: &TreeNode<T>) -> bool;
+    fn find_node(&self, value: T) -> TreeNode<T>;
     fn node_height(&self) -> usize;
     fn print_traversal(&self);
+
+    // getters for node properties and family members
     fn color(&self) -> NodeColor;
     fn value(&self) -> Option<T>;
     fn parent(&self) -> TreeNode<T>;
@@ -36,12 +40,13 @@ pub trait NodeTraits<T> {
     fn right(&self) -> TreeNode<T>;
     fn grandparent(&self) -> TreeNode<T>;
     fn uncle(&self) -> TreeNode<T>;
+
+    // setters for node properties
     fn set_color(&self, color: NodeColor);
     fn set_value(&self, value: T);
     fn set_parent(&mut self, parent: TreeNode<T>);
     fn set_left(&mut self, left: TreeNode<T>);
     fn set_right(&mut self, right: TreeNode<T>);
-    fn find_node(&self, value: T) -> TreeNode<T>;
 }
 
 impl<T> NodeTraits<T> for TreeNode<T> where T: Copy + PartialOrd + std::fmt::Debug {
@@ -71,6 +76,21 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy + PartialOrd + std::fmt::Deb
             return false
         }
         Rc::ptr_eq(&self.unwrapped(), &node.unwrapped())
+    }
+
+    fn find_node(&self, value: T) -> TreeNode<T> {
+        match self {
+            Some(_) => {
+                if value == self.value().unwrap() {
+                    self.clone()
+                } else if value < self.value().unwrap() {
+                    self.left().find_node(value)
+                } else {
+                    self.right().find_node(value)
+                }
+            },
+            None => None
+        }
     }
 
     fn node_height(&self) -> usize {
@@ -196,21 +216,6 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy + PartialOrd + std::fmt::Deb
             })))
         }
     }
-
-    fn find_node(&self, value: T) -> TreeNode<T> {
-        match self {
-            Some(_) => {
-                if value == self.value().unwrap() {
-                    self.clone()
-                } else if value < self.value().unwrap() {
-                    self.left().find_node(value)
-                } else {
-                    self.right().find_node(value)
-                    }
-            }, 
-            None => None
-        }
-    }
 }
 
 /******************** RBTree Helpers ********************/
@@ -266,14 +271,7 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
     }
 
     fn search(&self, value: T) -> TreeNode<T> {
-
-        if self.root.is_none() {
-            return None
-        } else if self.root.value().unwrap() == value {
-            return self.root.clone()
-        } else {
-            self.root.find_node(value)
-        }
+        self.root.find_node(value)
     }
 
     fn rotate(&mut self, node: &TreeNode<T>, direction: bool) {
@@ -361,7 +359,7 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         if self.is_empty() {
             self.root = new_node.clone();
         } else if self.search(value).is_some() {
-            // TODO: should this just be a print? should we panic or do other stuff
+            // sticking with printing an err msg because panic causes the terminal to exit the program
             println!("Value already exists!");
             return;
         } else {
