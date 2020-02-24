@@ -1,7 +1,9 @@
 use super::*;
 
+#[cfg(test)]
 // TODO: write actual tests lmao
 // moved the stuff here to write the command line interface in main
+#[test]
 pub fn it_works() {
     // Test TreeNode
     let treenode: red_black_tree::TreeNode<u32> = red_black_tree::TreeNode::new(5);
@@ -20,6 +22,7 @@ pub fn it_works() {
     println!("\n==== Start Testing RBTree Here ====\n");
     let mut rbt: red_black_tree::RBTree<u32> = red_black_tree::RBTree::new();
     println!("empty height = {}", rbt.height());
+    println!("no leaves = {}", rbt.count_leaves());
     println!();
 
     println!("Inserting 5 ...");
@@ -27,6 +30,7 @@ pub fn it_works() {
     println!("size = {}", rbt.size());
     rbt.print();
     println!("height with 1 node = {}", rbt.height());
+    println!("1 node = 1 leaf? = {}", rbt.count_leaves());
     println!();
 
     // HEIGHTS ARE OFF BY ONE AND IDK WHY YET
@@ -42,6 +46,7 @@ pub fn it_works() {
     println!("size = {}", rbt.size());
     rbt.print();
     println!("height = {}", rbt.height());
+    println!("3 nodes = 2 leaves = {}", rbt.count_leaves());
     println!();
 
     println!("Inserting 8 ...");
@@ -49,6 +54,7 @@ pub fn it_works() {
     println!("size = {}", rbt.size());
     rbt.print();
     println!("height = {}", rbt.height());
+    println!("num leaves = {}", rbt.count_leaves());
     println!();
 
     println!("Inserting 100 ...");
@@ -56,6 +62,7 @@ pub fn it_works() {
     println!("size = {}", rbt.size());
     rbt.print();
     println!("height = {}", rbt.height());
+    println!("num leaves = {}", rbt.count_leaves());
     println!();
 
     println!("Inserting 60 ...");
@@ -63,6 +70,7 @@ pub fn it_works() {
     println!("size = {}", rbt.size());
     rbt.print();
     println!("height = {}", rbt.height());
+    println!("num leaves = {}", rbt.count_leaves());
     println!();
 
     println!("Inserting 120 ...");
@@ -70,6 +78,7 @@ pub fn it_works() {
     println!("size = {}", rbt.size());
     rbt.print();
     println!("height = {}", rbt.height());
+    println!("num leaves = {}", rbt.count_leaves());
     println!();
 
     println!("Inserting 1 ...");
@@ -77,6 +86,7 @@ pub fn it_works() {
     println!("size = {}", rbt.size());
     rbt.print();
     println!("height = {}", rbt.height());
+    println!("num leaves = {}", rbt.count_leaves());
     println!();
 
     println!("Inserting 84 ...");
@@ -84,6 +94,7 @@ pub fn it_works() {
     println!("size = {}", rbt.size());
     rbt.print();
     println!("height = {}", rbt.height());
+    println!("num leaves = {}", rbt.count_leaves());
     println!();
 
     println!("Inserting 17 ...");
@@ -91,6 +102,7 @@ pub fn it_works() {
     println!("size = {}", rbt.size());
     rbt.print();
     println!("height = {}", rbt.height());
+    println!("num leaves = {}", rbt.count_leaves());
     println!();
 
     assert!(rbt.search(35).is_some());
@@ -104,4 +116,6 @@ pub fn it_works() {
     assert!(rbt.search(100).is_some());
     assert!(rbt.search(120).is_some());
     assert!(rbt.search(10).is_none());
+
+
 }

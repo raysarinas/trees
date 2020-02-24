@@ -31,6 +31,7 @@ pub trait NodeTraits<T> {
     fn find_node(&self, value: T) -> TreeNode<T>;
     fn node_height(&self) -> usize;
     fn print_traversal(&self);
+    fn count_leaves(&self) -> usize;
 
     // getters for node properties and family members
     fn color(&self) -> NodeColor;
@@ -214,6 +215,16 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy + PartialOrd + std::fmt::Deb
                 left: self.left(),
                 right: right
             })))
+        }
+    }
+
+    fn count_leaves(&self) -> usize {
+        if self.is_none() {
+            0
+        } else if self.left().is_none() && self.right().is_none() {
+            1
+        } else {
+            self.left().count_leaves() + self.right().count_leaves()
         }
     }
 }
@@ -559,15 +570,7 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         }
     }
 
-    // TODO count number of leaves
-    // maybe related to size() idk?
-    #[allow(unused_mut)]
     fn count_leaves(&self) -> usize {
-        let mut num_leaves = 0;
-        // let mut curr_node = self.root;
-        // while curr_node.is_some() {
-        //     if curr_node.left()
-        // }
-        num_leaves
+        self.root.count_leaves()
     }
 }
