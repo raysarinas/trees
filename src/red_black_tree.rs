@@ -424,15 +424,17 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
                 sibling.set_color(NodeColor::Black);
 
                 if node.compare(&node.parent().left()) {
-                    // rotate_left();
+                    self.rotate(&sibling, ROTATE_LEFT);
                 } else {
-                    // rotate_right();
+                    self.rotate(&sibling, ROTATE_RIGHT);
                 }
 
                 // update sibling
                 if node.compare(&node.parent().left()) {
+                    sibling.set_value(node.parent().right().value().unwrap());
                     // sibling = node.parent().right()
                 } else {
+                    sibling.set_value(node.parent().left().value().unwrap());
                     // sibling = node.parent().left()
                 }
             }
@@ -460,6 +462,7 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
                            if sibling.left().color() == NodeColor::Red && sibling.right().color() == NodeColor::Black {
                                sibling.set_color(NodeColor::Red);
                                sibling.left().set_color(NodeColor::Black);
+                               self.rotate(&sibling.left(), ROTATE_RIGHT);
                                // rotate_right(sibling.left());
                            }
                        }
@@ -467,14 +470,17 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
                         if sibling.left().color() == NodeColor::Black && sibling.right().color() == NodeColor::Red {
                             sibling.set_color(NodeColor::Red);
                             sibling.right().set_color(NodeColor::Black);
+                            self.rotate(&sibling.left(), ROTATE_LEFT);
                             // rotate_left(sibling.left());
                         }
                     }
 
                     // update sibling
                     if node.compare(&node.parent().left()) {
+                        sibling.set_value(node.parent().right().value().unwrap());
                         // sibling = node.parent().right();
                     } else {
+                        sibling.set_value(node.parent().left().value().unwrap());
                         // sibling node.parent().left();
                     }
                    }
@@ -485,9 +491,11 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
                    node.parent().set_color(NodeColor::Black);
                    if node.compare(&node.parent().left()) {
                        sibling.right().set_color(NodeColor::Black);
+                       self.rotate(&sibling, ROTATE_LEFT);
                        // rotate_left(sibling);
                    } else {
                        sibling.left().set_color(NodeColor::Black);
+                       self.rotate(&sibling, ROTATE_RIGHT);
                        // rotate_right(sibling);
                    }
 
@@ -513,13 +521,10 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
 
         if node.left().is_some() && node.right().is_some() {
             let larger = Self::get_higher_node(&node.right());
-
             let temp = larger.value();
-            // TODO
-            // not sure how to set "larger"'s value to be the node value
-            // if there is a swap function from Rc or RefCell that would
-            // help a lot I think
-            // larger.set_value(node.unwrapped().clone());
+            let curr_val = node.value().unwrap();
+
+            larger.set_value(curr_val);
             node.set_value(temp.unwrap());
         }
 
