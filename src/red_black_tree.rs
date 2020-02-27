@@ -586,7 +586,7 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
             // larger.set_value(curr_val);
             // node.set_value(temp.unwrap());
 
-            // node = larger.clone();
+            node = larger.clone();
         }
 
         let old_node = node.clone();

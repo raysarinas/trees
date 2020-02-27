@@ -184,6 +184,13 @@ pub fn it_works() {
     println!("num leaves = {}", rbt2.count_leaves());
     println!();
 
+    println!("Deleting 30 ...");
+    rbt2.delete_node(30);
+    println!("size = {}", rbt2.size());
+    rbt2.print();
+    println!("height = {}", rbt2.height());
+    println!("num leaves = {}", rbt2.count_leaves());
+    println!();
 
 
 }
