@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::mem;
 
 static ROTATE_LEFT: bool = true;
 static ROTATE_RIGHT: bool = false;
@@ -15,6 +16,7 @@ pub enum NodeColor {
 
 pub type TreeNode<T> = Option<Rc<RefCell<Node<T>>>>;
 
+#[derive(Debug)]
 pub struct Node<T> {
     color: NodeColor,
     value: Option<T>,
@@ -32,6 +34,7 @@ pub trait NodeTraits<T> {
     fn node_height(&self) -> usize;
     fn print_traversal(&self);
     fn count_leaves(&self) -> usize;
+    fn is_node_red(node: &TreeNode<T>) -> bool;
 
     // getters for node properties and family members
     fn color(&self) -> NodeColor;
@@ -41,6 +44,7 @@ pub trait NodeTraits<T> {
     fn right(&self) -> TreeNode<T>;
     fn grandparent(&self) -> TreeNode<T>;
     fn uncle(&self) -> TreeNode<T>;
+    // TODO: write getter for a sibling node
 
     // setters for node properties
     fn set_color(&self, color: NodeColor);
@@ -227,6 +231,10 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy + PartialOrd + std::fmt::Deb
             self.left().count_leaves() + self.right().count_leaves()
         }
     }
+
+    fn is_node_red(node: &TreeNode<T>) -> bool {
+        node.color() == NodeColor::Red
+    }
 }
 
 /******************** RBTree Helpers ********************/
@@ -246,6 +254,7 @@ pub trait RBTreeTraits<T> {
     fn insert_case5(&mut self, node: &TreeNode<T>);
     fn fix_insert_color(&mut self, node: &TreeNode<T>);
     fn fix_delete_color(&mut self, node: &TreeNode<T>);
+    fn fix_delete_color_2(&mut self, node: &TreeNode<T>);
     fn insert_node(&mut self, value: T);
     fn delete_node(&mut self, value: T);
     fn print(&self);
@@ -409,9 +418,11 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
 
     // TODO - fill out commented code and actually test
     fn fix_delete_color(&mut self, node: &TreeNode<T>) {
+        println!("TRYING TO FIX DELETE COLOR");
 
         // case 1
         if node.parent().is_some() {
+            println!("CASE 1 TRYING TO FIX DELETE COLOR");
             // find sibling
             let sibling = match node.compare(&node.parent().left()) {
                 true => node.parent().right(),
@@ -420,6 +431,7 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
 
             // case 2
             if sibling.color() == NodeColor::Red {
+                println!("CASE 2 TRYING TO FIX DELETE COLOR");
                 sibling.parent().set_color(NodeColor::Red);
                 sibling.set_color(NodeColor::Black);
 
@@ -441,6 +453,7 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
 
             if sibling.left().is_some() && sibling.right().is_some() {
                 // case 3
+                println!("CASE 3 TRYING TO FIX DELETE COLOR");
                 // there is was a super long IF statement so i broke it into a nested one
                 if node.parent().color() == NodeColor::Black && sibling.color() == NodeColor::Black {
                     if sibling.left().color() == NodeColor::Black && sibling.right().color() == NodeColor::Black {
@@ -451,12 +464,14 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
                 // case 4
                 else if node.parent().color() == NodeColor::Red && sibling.color() == NodeColor::Black {
                     if sibling.left().color() == NodeColor::Black && sibling.right().color() == NodeColor::Black {
+                        println!("CASE 4 TRYING TO FIX DELETE COLOR");
                         sibling.set_color(NodeColor::Red);
                         node.parent().set_color(NodeColor::Black);
                     }
                 }
                 // case 5
                 else {
+                   println!("CASE 5 TRYING TO FIX DELETE COLOR");
                    if sibling.color() == NodeColor::Black {
                        if node.compare(&node.parent().left()) {
                            if sibling.left().color() == NodeColor::Red && sibling.right().color() == NodeColor::Black {
@@ -487,6 +502,7 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
 
 
                    // case 6
+                   println!("CASE 6 TRYING TO FIX DELETE COLOR");
                    sibling.set_color(node.parent().color());
                    node.parent().set_color(NodeColor::Black);
                    if node.compare(&node.parent().left()) {
@@ -500,6 +516,49 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
                    }
 
                 }
+            }
+        }
+    }
+
+    fn fix_delete_color_2(&mut self, node: &TreeNode<T>) {
+        // case 1: node is root so done (it’s already black)
+        if node.compare(&self.root) {
+            return;
+        }
+
+        // Case 2, sibling of node is red:
+        // Set parent’s color to red, and sibling’s color to black 
+        // Rotate left/right on sibling if node is a lChild/rChild
+        // Update sibling to node’s new sibling
+        if node.parent().is_some() {
+            println!("case 2 delete");
+            let mut sibling = match node.compare(&node.parent().left()) {
+                true => node.parent().right(),
+                false => node.parent().left(),
+            };
+
+            println!("SIBLING IS NOW: {:?}", sibling.value());
+
+            // actually start case 2 here:
+            if sibling.color() == NodeColor::Red {
+                sibling.parent().set_color(NodeColor::Red);
+                sibling.set_color(NodeColor::Black);
+
+                if node.compare(&node.parent().left()) {
+                    println!("LEFT ROTATING");
+                    self.rotate(&sibling, ROTATE_LEFT);
+                } else {
+                    self.rotate(&sibling, ROTATE_RIGHT);
+                }
+
+                if node.compare(&node.parent().left()) {
+                    // THIS IS NOT WORKING?
+                    // need to update the sibling to be node.parent.right?
+                    sibling = node.parent().right().clone();
+                } else {
+                    sibling = node.parent().right().clone();
+                }
+
             }
         }
     }
@@ -520,45 +579,66 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         }
 
         if node.left().is_some() && node.right().is_some() {
-            let larger = Self::get_higher_node(&node.right());
-            let temp = larger.value();
-            let curr_val = node.value().unwrap();
+            let mut larger = Self::get_higher_node(&node.right());
+            mem::swap(&mut node, &mut larger);
+            // let temp = larger.value();
+            // let curr_val = node.value().unwrap();
+            // larger.set_value(curr_val);
+            // node.set_value(temp.unwrap());
 
-            larger.set_value(curr_val);
-            node.set_value(temp.unwrap());
+            // node = larger.clone();
         }
 
         let old_node = node.clone();
+        println!("got old node == {:?}", old_node.value());
         // set node to null sibling
         if node.right().is_none() {
-            node.set_value(node.left().value().unwrap());
+            // println!("trying to set node.set_value(node.left().value().unwrap()) ");
+            // node.set_value(node.left().value());
+            node = node.left().clone();
+            println!("NODE RIGHT NONE SO NODE IS NOW = {:?}", node.value());
+
         } else {
-            node.set_value(node.right().value().unwrap());
+            // println!("trying to set node.set_value(node.right().value().unwrap()); ");
+            node = node.right().clone();
+            println!("NODE LEFT NONE SO NODE IS NOW = {:?}", node.value());
         }
 
+        // If node is not root (parent not null)
+        // then link child to parent; otherwise:
+            // If child is NIL, then empty the tree
+            // Otherwise, set root to child
+
         // link child to parent if node is not root
+
         if !old_node.compare(&self.root) && old_node.parent().is_some() {
+            println!("old node != self root && old_node.parent() != none");
+            println!("old node parent = {:?} and node parent = {:?}", old_node.parent().value(), node.parent().value());
             node.set_parent(old_node.parent());
+            println!("node parent now set to old node {:?}", node.parent().value());
 
             if old_node.compare(&old_node.parent().left()) {
                 old_node.parent().set_left(node.clone());
             } else {
                 old_node.parent().set_right(node.clone());
             }
+
         } else if node.is_none() {
             // empty tree if child is None
             self.root = None;
         } else {
             // set root to child
-            self.root.set_value(node.value().unwrap());
+            self.root = node.clone();
             node.set_parent(None);
         }
 
         if old_node.color() == NodeColor::Black {
             if node.color() == NodeColor::Red {
+                println!("dont need to fix color");
                 node.set_color(NodeColor::Black);
             } else {
-                self.fix_delete_color(&node);
+                println!("NEED TO FIX COLOR");
+                self.fix_delete_color_2(&node);
             }
         }
 
