@@ -79,7 +79,11 @@ fn rbt() {
                 rbt.insert_node(value); // TODO: error handling?
                 println!("Inserted {}", value);
             },
-            2 => {},
+            2 => {
+                let value = get_input("Value to delete:");
+                rbt.delete_node(value); // TODO: error handling?
+                println!("Deleted {}", value);
+            },
             3 => println!("{}", rbt.size()),
             4 => println!("{}", rbt.height()),
             5 => rbt.print(),
@@ -97,19 +101,19 @@ fn rbt() {
 }
 
 fn main() {
-    // loop {
-    //     println!("{}", MAIN_MENU);
-    //     let choice = get_input(">");
-    //     match choice {
-    //         1 => rbt(),
-    //         2 => avl(),
-    //         3 => it_works(),
-    //         4 => {
-    //             println!("ok bye");
-    //             break;
-    //         },
-    //         _ => println!("Invalid input!")
-    //     }
-    // }
-    it_works();
+    loop {
+        println!("{}", MAIN_MENU);
+        let choice = get_input(">");
+        match choice {
+            1 => rbt(),
+            2 => avl(),
+            3 => it_works(),
+            4 => {
+                println!("ok bye");
+                break;
+            },
+            _ => println!("Invalid input!")
+        }
+    }
+    // it_works();
 }
