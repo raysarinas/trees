@@ -1,6 +1,5 @@
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::mem;
 
 static ROTATE_LEFT: bool = true;
 static ROTATE_RIGHT: bool = false;
@@ -541,8 +540,6 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
 
         let mut sibling = node.sibling();
 
-        println!("SIBLING IS NOW: {:?}", sibling.value());
-
         // Case 2, sibling of node is red:
         // Set parent’s color to red, and sibling’s color to black 
         // Rotate left/right on sibling if node is a lChild/rChild
@@ -640,39 +637,58 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
     }
 
     fn delete_node(&mut self, value: T) {
-        println!("ABOUT TO SEARCH");
         let mut node = self.search(value);
-        println!("done search");
 
         if node.is_none() {
-            println!("node is none");
             return;
         }
 
-        println!("641");
-        if node.left().is_some() && node.right().is_some() {
+        if node.left().value().is_some() && node.right().value().is_some() {
             let mut larger = node.left(); // node.right()
-            while larger.right().is_some() { // larger.left()
-                println!("656");
+            println!("init larger = {:?}", larger.value());
+            let mut temp = larger.clone();
+            while larger.right().value().is_some() { // larger.left()
+                println!("======> larger in loop is = {:?}", larger.value());
                 larger = larger.right(); // larger.left()
+                temp = larger.parent();
             }
-            println!("659");
+            // larger = larger.parent();
+            // larger = Self::get_higher_node(&node.left());
+            // println!("USING GET LARGER FUNC LARGER ==== {:?} ", larger.value());
+
+            println!("larger is now = {:?}", larger.value());
+            println!(">>>>>>>>>>>>>>>>> temp is now = {:?}", temp.value());
+            // larger.set_value(temp.value().unwrap());
+            println!(">>>>>>>>>>>>>>>>> LARGER IS NOW TEMP = {:?}", larger.value());
             // let mut larger = Self::get_higher_node(&node.left());
-            println!("trying to set value");
-            // node.set_value(larger.value().unwrap());
+            node.set_value(larger.value().unwrap());
+
+            println!("node value is now = {:?}", node.value());
             // mem::swap(&mut node, &mut larger);
-            mem::replace(&mut node.value(), larger.value());
+            // let temp = mem::replace(&mut node, larger);
+            // println!("larger after swapping with node = {:?}", temp.value());
+
+            // println!("temp = {:?}", temp);
+            // node = temp;
             node = larger.clone();
-            println!("650");
+            println!("node is now = {:?}", node.value());
+
+            // if value == 5 {
+            //     process::exit(0);
+            // }
+
         }
 
         // set node to null sibling
-        println!("654");
-        let mut child = match node.right() {
+        
+        println!("setting node to null sibling now");
+        println!("====== node is now = {:?}", node.value());
+        let mut child = match node.left() {
             Some(_) => node.right(),
             None => node.left()
         };
-        println!("659");
+
+        println!("child is now set to = {:?}", child.value());
 
         if !node.compare(&self.root) && node.parent().is_some() {
             child.set_parent(node.parent());

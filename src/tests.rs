@@ -197,7 +197,7 @@ pub fn it_works() {
 
 }
 
-pub fn print_test() {
+pub fn delete_cases_1_3_5_6() {
     let mut rbt: red_black_tree::RBTree<u32> = red_black_tree::RBTree::new();
     
     for x in 1..=10 {
@@ -207,12 +207,48 @@ pub fn print_test() {
 
 
     rbt.delete_node(4);
-    // println!()
+    // rbt.print();
     rbt.delete_node(6);
+    rbt.print();
     rbt.delete_node(8);
+    // rbt.print();
     rbt.delete_node(1);
+    rbt.print();
+    // println!("-----------------------------PRINTING DELETING 5");
     rbt.delete_node(5);
-
+    rbt.print();
+    rbt.delete_node(9);
+    rbt.delete_node(2);
     rbt.print();
 
 }
+
+pub fn delete_cases_2_4() {
+    println!("\n==== Start Testing DELETE RBTree Here ====\n");
+
+    let mut rbt: red_black_tree::RBTree<u32> = red_black_tree::RBTree::new();
+    let mut vec_in: Vec<u32> = vec![5, 70, 35, 8, 98, 60, 99, 99, 1, 84, 17];
+
+    for &x in vec_in.iter() {
+        println!("inserting {} ...", x);
+        rbt.insert_node(x);
+        println!("size is now = {}", rbt.size());
+        rbt.print();
+        println!("height = {}", rbt.height());
+        println!("leaves = {}", rbt.count_leaves());
+        println!();
+    }
+
+    vec_in = vec![17, 84, 99, 5, 1, 60];
+    for &x in vec_in.iter() {
+        println!("deleting {} ...", x);
+        rbt.delete_node(x);
+        println!("size is now = {}", rbt.size());
+        rbt.print();
+        println!("height = {}", rbt.height());
+        println!("leaves = {}", rbt.count_leaves());
+        println!();
+    }
+ 
+ 
+ }

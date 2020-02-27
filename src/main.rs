@@ -116,5 +116,6 @@ fn main() {
     //     }
     // }
     // it_works();
-    print_test();
+    // print_test();
+    delete_cases_2_4();
 }
