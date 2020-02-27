@@ -579,66 +579,44 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         }
 
         if node.left().is_some() && node.right().is_some() {
-            let mut larger = Self::get_higher_node(&node.right());
-            mem::swap(&mut node, &mut larger);
-            // let temp = larger.value();
-            // let curr_val = node.value().unwrap();
-            // larger.set_value(curr_val);
-            // node.set_value(temp.unwrap());
-
+            let larger = Self::get_higher_node(&node.right());
+            
+            node.set_value(larger.value().unwrap());
             node = larger.clone();
         }
 
-        let old_node = node.clone();
-        println!("got old node == {:?}", old_node.value());
+        println!("got old node == {:?}", node.value());
         // set node to null sibling
-        if node.right().is_none() {
-            // println!("trying to set node.set_value(node.left().value().unwrap()) ");
-            // node.set_value(node.left().value());
-            node = node.left().clone();
-            println!("NODE RIGHT NONE SO NODE IS NOW = {:?}", node.value());
+        let mut child = match node.right() {
+            None => node.left().clone(),
+            Some(_) => node.right().clone(),
+        };
 
-        } else {
-            // println!("trying to set node.set_value(node.right().value().unwrap()); ");
-            node = node.right().clone();
-            println!("NODE LEFT NONE SO NODE IS NOW = {:?}", node.value());
-        }
+        if !node.compare(&self.root) && node.parent().is_some() {
+            child.set_parent(node.parent());
 
-        // If node is not root (parent not null)
-        // then link child to parent; otherwise:
-            // If child is NIL, then empty the tree
-            // Otherwise, set root to child
-
-        // link child to parent if node is not root
-
-        if !old_node.compare(&self.root) && old_node.parent().is_some() {
-            println!("old node != self root && old_node.parent() != none");
-            println!("old node parent = {:?} and node parent = {:?}", old_node.parent().value(), node.parent().value());
-            node.set_parent(old_node.parent());
-            println!("node parent now set to old node {:?}", node.parent().value());
-
-            if old_node.compare(&old_node.parent().left()) {
-                old_node.parent().set_left(node.clone());
+            if node.compare(&node.parent().left()) {
+                node.parent().set_left(child.clone());
             } else {
-                old_node.parent().set_right(node.clone());
+                node.parent().set_right(child.clone());
             }
 
-        } else if node.is_none() {
+        } else if child.is_none() {
             // empty tree if child is None
             self.root = None;
         } else {
             // set root to child
-            self.root = node.clone();
-            node.set_parent(None);
+            self.root = child.clone();
+            child.set_parent(None);
         }
 
-        if old_node.color() == NodeColor::Black {
-            if node.color() == NodeColor::Red {
+        if node.color() == NodeColor::Black {
+            if child.color() == NodeColor::Red {
                 println!("dont need to fix color");
-                node.set_color(NodeColor::Black);
+                child.set_color(NodeColor::Black);
             } else {
                 println!("NEED TO FIX COLOR");
-                self.fix_delete_color_2(&node);
+                self.fix_delete_color_2(&child);
             }
         }
 
