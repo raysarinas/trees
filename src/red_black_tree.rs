@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::mem;
 
 static ROTATE_LEFT: bool = true;
 static ROTATE_RIGHT: bool = false;
@@ -85,8 +86,13 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy + PartialOrd + std::fmt::Deb
     fn find_node(&self, value: T) -> TreeNode<T> {
         match self {
             Some(_) => {
+                println!("FOUND SOME");
+                println!("in value = {:?}", value);
+                println!("self.value = {:?}", self.value().unwrap());
                 if value == self.value().unwrap() {
+                    println!("VALUE TO CLONE = {:?}", self.value());
                     self.clone()
+
                 } else if value < self.value().unwrap() {
                     self.left().find_node(value)
                 } else {
@@ -265,6 +271,7 @@ pub trait RBTreeTraits<T> {
     fn delete_node(&mut self, value: T);
     fn print(&self);
     fn count_leaves(&self) -> usize;
+    fn get_higher_node(node: &TreeNode<T>) -> TreeNode<T>;
 }
 
 impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
@@ -296,6 +303,7 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
     }
 
     fn search(&self, value: T) -> TreeNode<T> {
+        println!("GOING INTO FIND NODE");
         self.root.find_node(value)
     }
 
@@ -622,27 +630,49 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
 
     }
 
+    fn get_higher_node(node: &TreeNode<T>) -> TreeNode<T> {
+        println!("in get_higher_node");
+        if node.right().is_none() {
+            node.clone()
+        } else {
+            return Self::get_higher_node(&node.right())
+        }
+    }
+
     fn delete_node(&mut self, value: T) {
+        println!("ABOUT TO SEARCH");
         let mut node = self.search(value);
+        println!("done search");
 
         if node.is_none() {
+            println!("node is none");
             return;
         }
 
+        println!("641");
         if node.left().is_some() && node.right().is_some() {
             let mut larger = node.left(); // node.right()
             while larger.right().is_some() { // larger.left()
+                println!("656");
                 larger = larger.right(); // larger.left()
             }
-            node.set_value(larger.value().unwrap());
-            node = larger;
+            println!("659");
+            // let mut larger = Self::get_higher_node(&node.left());
+            println!("trying to set value");
+            // node.set_value(larger.value().unwrap());
+            mem::swap(&mut node, &mut larger);
+
+            node = larger.clone();
+            println!("650");
         }
 
         // set node to null sibling
+        println!("654");
         let mut child = match node.right() {
             Some(_) => node.right(),
             None => node.left()
         };
+        println!("659");
 
         if !node.compare(&self.root) && node.parent().is_some() {
             child.set_parent(node.parent());

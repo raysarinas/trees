@@ -192,5 +192,27 @@ pub fn it_works() {
     println!("num leaves = {}", rbt2.count_leaves());
     println!();
 
+    
+
+
+}
+
+pub fn print_test() {
+    let mut rbt: red_black_tree::RBTree<u32> = red_black_tree::RBTree::new();
+    
+    for x in 1..=10 {
+        rbt.insert_node(x);
+        println!("inserting ... {}", x);
+    }
+
+
+    rbt.delete_node(4);
+    // println!()
+    rbt.delete_node(6);
+    rbt.delete_node(8);
+    rbt.delete_node(1);
+    rbt.delete_node(5);
+
+    rbt.print();
 
 }
