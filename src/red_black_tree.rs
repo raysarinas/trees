@@ -1,6 +1,5 @@
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::mem;
 
 static ROTATE_LEFT: bool = true;
 static ROTATE_RIGHT: bool = false;
@@ -126,6 +125,20 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy + PartialOrd + std::fmt::Deb
         }
     }
 
+    fn count_leaves(&self) -> usize {
+        if self.is_none() {
+            0
+        } else if self.left().is_none() && self.right().is_none() {
+            1
+        } else {
+            self.left().count_leaves() + self.right().count_leaves()
+        }
+    }
+
+    fn is_node_red(node: &TreeNode<T>) -> bool {
+        node.color() == NodeColor::Red
+    }
+
     fn color(&self) -> NodeColor {
         match self {
             Some(tree_node) => tree_node.borrow().color.clone(),
@@ -221,20 +234,6 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy + PartialOrd + std::fmt::Deb
             })))
         }
     }
-
-    fn count_leaves(&self) -> usize {
-        if self.is_none() {
-            0
-        } else if self.left().is_none() && self.right().is_none() {
-            1
-        } else {
-            self.left().count_leaves() + self.right().count_leaves()
-        }
-    }
-
-    fn is_node_red(node: &TreeNode<T>) -> bool {
-        node.color() == NodeColor::Red
-    }
 }
 
 /******************** RBTree Helpers ********************/
@@ -258,7 +257,6 @@ pub trait RBTreeTraits<T> {
     fn insert_node(&mut self, value: T);
     fn delete_node(&mut self, value: T);
     fn print(&self);
-    fn get_higher_node(node: &TreeNode<T>) -> TreeNode<T>;
     fn count_leaves(&self) -> usize;
 }
 
@@ -270,11 +268,11 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         }
     }
 
-    // TODO ask miller if leaf nodes are included
+    // TODO ask miller if nil nodes are included
     fn height(&self) -> usize {
         self.root.node_height()
 
-        // use code below if leaf nodes are included
+        // use code below if nil nodes are included
         // if self.len >= 1 {
         //     self.root.node_height() + 1
         // } else {
@@ -315,14 +313,14 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
             if node.left().is_some() {
                 node.left().set_parent(parent.clone());
             }
-            parent.set_right(node.left().clone());
-            node.set_left(parent.clone());
+            parent.set_right(node.left());
+            node.set_left(parent);
         } else {
             if node.right().is_some() {
                 node.right().set_parent(parent.clone());
             }
-            parent.set_left(node.right().clone());
-            node.set_right(parent.clone());
+            parent.set_left(node.right());
+            node.set_right(parent);
         }
     }
 
@@ -363,10 +361,10 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
 
             if node.compare(&parent.right()) && parent.compare(&grandparent.left()) {
                 self.rotate(&node, ROTATE_LEFT);
-                node = node.left().clone();
+                node = node.left();
             } else if node.compare(&parent.left()) && parent.compare(&grandparent.right()) {
                 self.rotate(&node, ROTATE_RIGHT);
-                node = node.right().clone();
+                node = node.right();
             }
 
             self.insert_case5(&node);
@@ -563,14 +561,6 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         }
     }
 
-    fn get_higher_node(node: &TreeNode<T>) -> TreeNode<T> {
-        if node.left().is_none() {
-            node.clone()
-        } else {
-            return Self::get_higher_node(&node.left())
-        }
-    }
-    // TODO
     fn delete_node(&mut self, value: T) {
         let mut node = self.search(value);
 
@@ -579,28 +569,27 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         }
 
         if node.left().is_some() && node.right().is_some() {
-            let larger = Self::get_higher_node(&node.right());
-            
+            let mut larger = node.right();
+            while larger.left().is_some() {
+                larger = larger.left();
+            }
             node.set_value(larger.value().unwrap());
-            node = larger.clone();
+            node = larger;
         }
 
-        println!("got old node == {:?}", node.value());
         // set node to null sibling
         let mut child = match node.right() {
-            None => node.left().clone(),
-            Some(_) => node.right().clone(),
+            Some(_) => node.right(),
+            None => node.left()
         };
 
         if !node.compare(&self.root) && node.parent().is_some() {
             child.set_parent(node.parent());
-
             if node.compare(&node.parent().left()) {
                 node.parent().set_left(child.clone());
             } else {
                 node.parent().set_right(child.clone());
             }
-
         } else if child.is_none() {
             // empty tree if child is None
             self.root = None;
