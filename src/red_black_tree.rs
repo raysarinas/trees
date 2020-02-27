@@ -84,7 +84,7 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy + PartialOrd + std::fmt::Deb
     }
 
     fn find_node(&self, value: T) -> TreeNode<T> {
-        match self {
+        match self.value() {
             Some(_) => {
                 println!("FOUND SOME");
                 println!("in value = {:?}", value);
@@ -660,8 +660,8 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
             // let mut larger = Self::get_higher_node(&node.left());
             println!("trying to set value");
             // node.set_value(larger.value().unwrap());
-            mem::swap(&mut node, &mut larger);
-
+            // mem::swap(&mut node, &mut larger);
+            mem::replace(&mut node.value(), larger.value());
             node = larger.clone();
             println!("650");
         }
