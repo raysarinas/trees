@@ -25,6 +25,27 @@ pub fn benchmark_redblack() {
     }
 }
 
+pub fn benchmark_avl() {
+    for tree_size in vec![10_000, 40_000, 70_000, 100_000, 130_000] {
+        let mut tree: avl_tree::AVLTree<u32> = avl_tree::AVLTree::new();
+
+        for i in 0..tree_size {
+            tree.insert_node(i);
+        }
+
+        let time = std::time::Instant::now();
+
+        for i in 0..tree_size/10 {
+            match tree.contains(i) {
+                true => { },
+                false => println!("nope"),
+            }
+        }
+
+        println!("Elapsed time for {}: {} ms", tree_size, time.elapsed().as_millis());
+    }
+}
+
 pub fn it_works() {
     // Test TreeNode
     let treenode: red_black_tree::TreeNode<u32> = red_black_tree::TreeNode::new(5);

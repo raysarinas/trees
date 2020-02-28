@@ -244,6 +244,7 @@ pub trait AVLTreeTraits<T> {
     fn delete_node(&mut self, value: T);
     fn print(&self);
     fn count_leaves(&self) -> usize;
+    fn contains(&self, value: T) -> bool;
 }
 
 impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
@@ -434,7 +435,14 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
 
     fn count_leaves(&self) -> usize {
         self.root.count_leaves()
-    }   
+    }
+
+    fn contains(&self, value: T) -> bool {
+        match self.search(value) {
+            Some(_) => true,
+            None => false
+        }
+    }
 }
 // fn rotate_left(&mut self) {
 //     if self.right.is_none() {
