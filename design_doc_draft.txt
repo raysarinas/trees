@@ -1,0 +1,48 @@
+A design document outlining:
+- Major innovations – Additional to the project specification.
+- A detailed rationale for your augmented decisions with regard to the above design
+questions.
+- A list of known errors, faults, defects, missing functionality, etc. Telling us about
+your system’s limitations will score better than letting us find them! o A user manual
+
+
+Design Rationale
+
+We designed our implementation for the different binary search trees with the goal of providing a reusable crate that could be extended to other types of binary search trees that could potentially be self-balancing. We chose to support:
+
+[List of operations here]
+
+Some of the innovations:
+- include wrapper functions - encapsulating functionality relating to handling and managing various smart pointers in Rust. Talk about accessing parent/child/sibling/etc
+- Using traits to extend and implement commonalities between the RBT and AVL
+- Implement concept of smart pointers or something
+- something about command line interface
+- individual implementations provide different thing
+- encapsulate/put library together into a crate and explain why did that 
+
+[Explain briefly each of the implemented operations? - how they relate to one another]
+
+ANSWER FOLLOWING QUESTIONS (maybe combine them with design rationale above?): 
+What does a red-black tree provide that cannot be accomplished with ordinary binary
+search trees?
+- Do you need to apply any kind of error handling in your system (e.g., panic macro,
+Option<T>, Result<T, E>, etc..)
+- What components do the Red-black tree and AVL tree have in common? Don’t Repeat
+Yourself! Never, ever repeat yourself – a fundamental idea in programming.
+- How do we construct our design to “allow it to be efficiently and effectively extended”? For example. Could your code be reused to build a 2-3-4 tree or B tree?
+
+PART 3
+
+RED BLACK TREE BENCHMARK RESULTS:
+Elapsed time for 10000: 6 ms
+Elapsed time for 40000: 31 ms
+Elapsed time for 70000: 57 ms
+Elapsed time for 100000: 87 ms
+Elapsed time for 130000: 121 ms
+
+AVL TREE BENCHMARK RESULTS: - L8er
+
+- AVL is probably going to be more efficient because of height rebalancing factor. 
+- Other test cases should be accommodated including random insertions of varying numbers instead of in-order insertion. Could also consider decreasing numbers for inserting. Also consider deleting operations as a means of measuring efficiency. 
+- Yes probably good idea to include other data structures as a baseline. BST might be good baseline since it is essentially an RBT/AVL Tree that like doesn't balance itself or whatever we can figure out what to say later. 
+
