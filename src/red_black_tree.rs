@@ -264,6 +264,7 @@ pub trait RBTreeTraits<T> {
     fn delete_node(&mut self, value: T);
     fn print(&self);
     fn count_leaves(&self) -> usize;
+    fn contains(&self, value: T) -> bool;
 }
 
 impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
@@ -296,6 +297,13 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
 
     fn search(&self, value: T) -> TreeNode<T> {
         self.root.find_node(value)
+    }
+
+    fn contains(&self, value: T) -> bool {
+        match self.search(value) {
+            Some(_) => true,
+            None => false
+        }
     }
 
     fn rotate(&mut self, node: &TreeNode<T>, direction: bool) {

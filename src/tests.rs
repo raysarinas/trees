@@ -4,6 +4,27 @@ use super::*;
 // TODO: write actual tests lmao
 // moved the stuff here to write the command line interface in main
 // #[test]
+pub fn benchmark_redblack() {
+    for tree_size in vec![10_000, 40_000, 70_000, 100_000, 130_000] {
+        let mut tree: red_black_tree::RBTree<u32> = red_black_tree::RBTree::new();
+
+        for i in 0..tree_size {
+            tree.insert_node(i);
+        }
+
+        let time = std::time::Instant::now();
+
+        for i in 0..tree_size/10 {
+            match tree.contains(i) {
+                true => { },
+                false => println!("nope"),
+            }
+        }
+
+        println!("Elapsed time for {}: {} ms", tree_size, time.elapsed().as_millis());
+    }
+}
+
 pub fn it_works() {
     // Test TreeNode
     let treenode: red_black_tree::TreeNode<u32> = red_black_tree::TreeNode::new(5);
@@ -116,6 +137,18 @@ pub fn it_works() {
     assert!(rbt.search(100).is_some());
     assert!(rbt.search(120).is_some());
     assert!(rbt.search(10).is_none());
+
+    assert!(rbt.contains(35) == true);
+    assert!(rbt.contains(5) == true);
+    assert!(rbt.contains(1) == true);
+    assert!(rbt.contains(8) == true);
+    assert!(rbt.contains(17) == true);
+    assert!(rbt.contains(60) == true);
+    assert!(rbt.contains(70) == true);
+    assert!(rbt.contains(84) == true);
+    assert!(rbt.contains(100) == true);
+    assert!(rbt.contains(120) == true);
+    assert!(rbt.contains(10) == false);
 
     // println!("Deleting 1 ...");
     // rbt.delete_node(1);
@@ -249,6 +282,8 @@ pub fn delete_cases_2_4() {
         println!("leaves = {}", rbt.count_leaves());
         println!();
     }
+
+
  
  
  }
