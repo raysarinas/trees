@@ -241,7 +241,7 @@ pub trait AVLTreeTraits<T> {
 impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
     fn new() -> AVLTree<T> {
         AVLTree {
-            root: None, // IDK WHY THIS IS COMPLAINING
+            root: None,
         }
     }
 
@@ -269,7 +269,7 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
 
     // TODO
     fn fix_insert_height(&mut self, node: &AVLTreeNode<T>) {
-
+        println!("inside fixing insert height");
     }
 
     // TODO
@@ -280,6 +280,49 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
     // TODO
     fn insert_node(&mut self, value: T) {
 
+        // REGULAR BINARY SEARCH TREE INSERTION 
+        let mut new_node = AVLTreeNode::new(value);
+
+        if self.is_empty() {
+            self.root = new_node.clone();
+        }
+        else if self.search(value).is_some() {
+            println!("Value already exists!");
+            return;
+        }
+
+        else {
+            let mut curr_node = self.root.clone();
+            let mut curr_node_parent: AVLTreeNode<T> = None;
+            let mut is_left_child = true;
+
+            // find empty node
+            while curr_node.value().is_some() {
+                curr_node_parent = curr_node.clone();
+                if value < curr_node.value().unwrap() {
+                    curr_node = curr_node.left();
+                    is_left_child = true;
+                } else {
+                    curr_node = curr_node.right();
+                    is_left_child = false;
+                }
+            }
+            
+            // place new_node in found spot
+            if curr_node_parent.is_some() {
+                new_node.set_parent(curr_node_parent);
+                if is_left_child {
+                    new_node.parent().set_left(new_node.clone());
+                } else {
+                    new_node.parent().set_right(new_node.clone());
+                }
+            } else {
+                panic!("Current node has no parent!");
+            }
+        }
+
+        // TODO: AVL REBALANCING HERE
+        self.fix_insert_height(&new_node);
     }
 
     // TODO
