@@ -6,10 +6,10 @@ use std::cmp::max;
 static ROTATE_LEFT: bool = true;
 static ROTATE_RIGHT: bool = false;
 
-// #[derive(Clone, Debug, PartialEq)]
 
 pub type AVLTreeNode<T> = Option<Rc<RefCell<AVLNode<T>>>>;
 
+#[derive(Clone, Debug, PartialEq)]
 pub struct AVLNode<T> {
     value: Option<T>,
     parent: AVLTreeNode<T>,
@@ -79,11 +79,15 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
     fn find_node(&self, value: T) -> AVLTreeNode<T> {
         match self {
             Some(_) => {
+                println!("hehe2");
                 if value == self.value().unwrap() {
+                    println!("hehe2.1");
                     self.clone()
                 } else if value < self.value().unwrap() {
+                    println!("hehe2.2");
                     self.left().find_node(value)
                 }else {
+                    println!("hehe2.3");
                     self.right().find_node(value)
                     }
             }, 
@@ -221,7 +225,7 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
 }
 
 /******************** AVL Tree Helpers ********************/
-
+#[derive(Clone, Debug, PartialEq)]
 pub struct AVLTree<T> {
     root: AVLTreeNode<T>,
 }
@@ -234,7 +238,7 @@ pub trait AVLTreeTraits<T> {
     fn search(&self, value: T) -> AVLTreeNode<T>;
     fn get_balance(node: &AVLTreeNode<T>) -> isize;
     fn rotate(&mut self, node: &AVLTreeNode<T>, direction: bool) -> AVLTreeNode<T>;
-    fn fix_insert_height(&mut self, node: &AVLTreeNode<T>);
+    fn fix_insert_height(&mut self, node: &mut AVLTreeNode<T>);
     fn fix_delete_height(&mut self, node: &AVLTreeNode<T>);
     fn insert_node(&mut self, value: T);
     fn delete_node(&mut self, value: T);
@@ -276,6 +280,20 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
 
     // TODO
     fn rotate(&mut self, node: &AVLTreeNode<T>, direction: bool) -> AVLTreeNode<T> {
+        // let mut v = node.right();
+        // if direction == ROTATE_RIGHT {
+        //     v = node.left();
+        // }
+        
+        // v.set_parent(node.parent());
+
+        // if direction == ROTATE_LEFT {
+        //     node.set_right(v.left());
+        //     match node.right() {
+        //         Some(tree_node) => node.right().set_parent(*node),
+        //     }
+        // }
+        
         let mut parent = node.parent().clone();
         let mut grandparent = node.grandparent().clone();
         let mut node = node.clone();
@@ -310,8 +328,12 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
     }
 
     // TODO
-    fn fix_insert_height(&mut self, node: &AVLTreeNode<T>) {
+    fn fix_insert_height(&mut self, node: &mut AVLTreeNode<T>) {
         node.recalc_height();
+
+        if node.parent().is_some() {
+            self.fix_insert_height(&mut node.parent());
+        }
         
         let balance = Self::get_balance(node);
         let node_val = node.value();
@@ -353,9 +375,9 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
 
         // REGULAR BINARY SEARCH TREE INSERTION 
         let mut new_node = AVLTreeNode::new(value);
-
         if self.is_empty() {
             self.root = new_node.clone();
+            return
         }
         else if self.search(value).is_some() {
             println!("Value already exists!");
@@ -366,7 +388,6 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
             let mut curr_node = self.root.clone();
             let mut curr_node_parent: AVLTreeNode<T> = None;
             let mut is_left_child = true;
-
             // find empty node
             while curr_node.value().is_some() {
                 curr_node_parent = curr_node.clone();
@@ -378,7 +399,7 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
                     is_left_child = false;
                 }
             }
-            
+
             // place new_node in found spot
             if curr_node_parent.is_some() {
                 new_node.set_parent(curr_node_parent);
@@ -393,7 +414,7 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         }
 
         // TODO: AVL REBALANCING HERE
-        self.fix_insert_height(&new_node);
+        self.fix_insert_height(&mut new_node);
     }
 
     // TODO

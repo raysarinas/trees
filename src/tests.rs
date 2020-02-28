@@ -1,5 +1,5 @@
 use super::*;
-
+use avl_tree::AVLTreeTraits;
 // #[cfg(test)]
 // TODO: write actual tests lmao
 // moved the stuff here to write the command line interface in main
@@ -290,4 +290,31 @@ pub fn delete_cases_2_4() {
 
  pub fn avl_test() {
     // let mut avl: avl_tree::AVLTree<u32> = avl_tree::AVLTree::new();
+        //let mut avl: avl_tree::AVLTree<u32> = avl_tree::AVLTree::new();
+
+        println!("\n==== Start Testing AVLTree Here ====\n");
+
+        let mut avl: avl_tree::AVLTree<u32> = avl_tree::AVLTree::new();
+        let mut vec_in: Vec<u32> = vec![5, 70, 35, 8, 98, 60, 99, 99, 1, 84, 17];
+        println!("AVL Tree INIT = {:?}", avl);
+        for &x in vec_in.iter() {
+            println!("inserting {} ...", x);
+            avl.insert_node(x);
+            println!("size is now = {}", avl.size());
+            avl.print();
+            println!("height = {}", avl.height());
+            println!("leaves = {}", avl.count_leaves());
+            println!();
+        }
+    
+        vec_in = vec![17, 84, 99, 5, 1, 60];
+        for &x in vec_in.iter() {
+            println!("deleting {} ...", x);
+            avl.delete_node(x);
+            println!("size is now = {}", avl.size());
+            avl.print();
+            println!("height = {}", avl.height());
+            println!("leaves = {}", avl.count_leaves());
+            println!();
+        }
  }
