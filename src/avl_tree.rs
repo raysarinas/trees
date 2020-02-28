@@ -3,6 +3,9 @@ use std::rc::Rc;
 use std::mem::{replace, swap};
 use std::cmp::max;
 
+static ROTATE_LEFT: bool = true;
+static ROTATE_RIGHT: bool = false;
+
 // #[derive(Clone, Debug, PartialEq)]
 
 pub type AVLTreeNode<T> = Option<Rc<RefCell<AVLNode<T>>>>;
@@ -229,7 +232,8 @@ pub trait AVLTreeTraits<T> {
     fn is_empty(&self) -> bool;
     fn size(&self) -> usize;
     fn search(&self, value: T) -> AVLTreeNode<T>;
-    fn rotate(&mut self, node: &AVLTreeNode<T>, direction: bool);
+    fn get_balance(node: &AVLTreeNode<T>) -> isize;
+    fn rotate(&mut self, node: &AVLTreeNode<T>, direction: bool) -> AVLTreeNode<T>;
     fn fix_insert_height(&mut self, node: &AVLTreeNode<T>);
     fn fix_delete_height(&mut self, node: &AVLTreeNode<T>);
     fn insert_node(&mut self, value: T);
@@ -246,7 +250,7 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
     }
 
     fn height(&self) -> usize {
-        0
+        self.root.height() as usize
     }
 
     fn is_empty(&self) -> bool {
@@ -262,14 +266,81 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         self.root.find_node(value)
     }
 
-    // TODO
-    fn rotate(&mut self, node: &AVLTreeNode<T>, direction: bool) {
+    fn get_balance(node: &AVLTreeNode<T>) -> isize {
+        if node.is_none() {
+            0
+        } else {
+            node.left().height() - node.right().height()
+        }
+    }
 
+    // TODO
+    fn rotate(&mut self, node: &AVLTreeNode<T>, direction: bool) -> AVLTreeNode<T> {
+        let mut parent = node.parent().clone();
+        let mut grandparent = node.grandparent().clone();
+        let mut node = node.clone();
+
+        if parent.compare(&self.root) {
+            self.root = node.clone();
+        } else {
+            node.set_parent(grandparent.clone());
+            if parent.compare(&grandparent.left()) {
+                grandparent.set_left(node.clone());
+            } else {
+                grandparent.set_right(node.clone());
+            }
+        }
+
+        parent.set_parent(node.clone());
+        if direction == ROTATE_LEFT {
+            if node.left().is_some() {
+                node.left().set_parent(parent.clone());
+            }
+            parent.set_right(node.left());
+            node.set_left(parent);
+        } else {
+            if node.right().is_some() {
+                node.right().set_parent(parent.clone());
+            }
+            parent.set_left(node.right());
+            node.set_right(parent);
+        }
+
+        node
     }
 
     // TODO
     fn fix_insert_height(&mut self, node: &AVLTreeNode<T>) {
-        println!("inside fixing insert height");
+        node.recalc_height();
+        
+        let balance = Self::get_balance(node);
+        let node_val = node.value();
+
+        // Left Left Case
+        if balance > 1 && node_val < node.left().value() {
+            self.rotate(node, ROTATE_RIGHT);
+            return
+        }
+
+        // Right Right Case
+        if balance < -1 && node_val > node.right().value() {
+            self.rotate(node, ROTATE_LEFT);
+            return
+        }
+
+        // Left Right Case
+        if balance > 1 && node_val > node.left().value() {
+            node.set_left(self.rotate(&node.left(), ROTATE_LEFT));
+            self.rotate(node, ROTATE_RIGHT);
+            return
+        }
+
+        // Right Left Case
+        if balance < -1 && node_val < node.right().value() {
+            node.set_right(self.rotate(&node.right(), ROTATE_RIGHT));
+            self.rotate(node, ROTATE_LEFT);
+            return
+        }
     }
 
     // TODO
