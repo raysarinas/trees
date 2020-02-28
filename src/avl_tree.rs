@@ -331,10 +331,6 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
     // TODO
     fn fix_insert_height(&mut self, node: &mut AVLTreeNode<T>) {
         node.recalc_height();
-
-        if node.parent().is_some() {
-            self.fix_insert_height(&mut node.parent());
-        }
         
         let balance = Self::get_balance(node);
         let node_val = node.value();
@@ -360,9 +356,13 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
 
         // Right Left Case
         if balance < -1 && node_val < node.right().value() {
-            node.set_right(self.rotate(&node.right(), ROTATE_RIGHT));
+            node.set_right(self.rotate(&node.right().left(), ROTATE_RIGHT));
             self.rotate(node, ROTATE_LEFT);
             return
+        }
+
+        if node.parent().is_some() {
+            self.fix_insert_height(&mut node.parent());
         }
     }
 

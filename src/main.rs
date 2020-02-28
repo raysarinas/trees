@@ -117,7 +117,7 @@ fn main() {
     // }
     // it_works();
     // print_test();
-    delete_cases_2_4();
+    // delete_cases_2_4();
 
-    // avl_test();
+    avl_test();
 }
