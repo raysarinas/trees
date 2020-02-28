@@ -16,26 +16,33 @@ pub struct AVLNode<T> {
 }
 
 pub trait NodeTraits<T> {
+    // helper functions
     fn new(val: T) -> AVLTreeNode<T>;
     fn unwrapped(&self) -> Rc<RefCell<AVLNode<T>>>;
     fn compare(&self, node: &AVLTreeNode<T>) -> bool;
-    // fn node_height(&self) -> usize;
+    fn find_node(&self, value: T) -> AVLTreeNode<T>;
     fn print_traversal(&self);
-    // fn color(&self) -> NodeColor;
+    fn count_leaves(&self) -> usize;
+    fn recalc_height(&mut self); // AVL
+    
+    // getters for node properties and family members
+    fn height(&self) -> isize; // AVL
     fn value(&self) -> Option<T>;
     fn parent(&self) -> AVLTreeNode<T>;
     fn left(&self) -> AVLTreeNode<T>; 
     fn right(&self) -> AVLTreeNode<T>;
-    fn height(&self) -> isize; // AVL
     fn grandparent(&self) -> AVLTreeNode<T>;
     fn uncle(&self) -> AVLTreeNode<T>;
-    fn recalc_height(&mut self); // AVL
+    fn sibling(&self) -> AVLTreeNode<T>;
+
+    // setters for node properties
+    fn set_height(&self, value: isize); // AVL
     fn set_value(&self, value: T);
     fn set_parent(&mut self, parent: AVLTreeNode<T>);
     fn set_left(&mut self, left: AVLTreeNode<T>);
     fn set_right(&mut self, right: AVLTreeNode<T>);
-    fn set_height(&self, value: isize); // AVL
-    fn find_node(&self, value: T) -> AVLTreeNode<T>;
+    
+    
 }
 
 impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::Debug {
@@ -66,13 +73,49 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
         Rc::ptr_eq(&self.unwrapped(), &node.unwrapped())
     }
 
-    // node_height
+    fn find_node(&self, value: T) -> AVLTreeNode<T> {
+        match self {
+            Some(_) => {
+                if value == self.value().unwrap() {
+                    self.clone()
+                } else if value < self.value().unwrap() {
+                    self.left().find_node(value)
+                }else {
+                    self.right().find_node(value)
+                    }
+            }, 
+            None => None
+        }
+    }
 
     fn print_traversal(&self) {
         if self.is_some() && self.value().is_some() {
             self.left().print_traversal();
             print!("{:?} ", self.value().unwrap());
             self.right().print_traversal();
+        }
+    }
+
+    fn count_leaves(&self) -> usize {
+        if self.is_none() {
+            0
+        } else if self.left().is_none() && self.right().is_none() {
+            1
+        } else {
+            self.left().count_leaves() + self.right().count_leaves()
+        }
+    }
+
+    fn recalc_height(&mut self) {
+        let left = self.left();
+        let right = self.right();
+        self.set_height(1 + max(left.height(), right.height()));
+    }
+
+    fn height(&self) -> isize {
+        match self {
+            Some(tree_node) => tree_node.borrow().height,
+            None => 0
         }
     }
 
@@ -104,13 +147,6 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
         }
     }
 
-    fn height(&self) -> isize {
-        match self {
-            Some(tree_node) => tree_node.borrow().height,
-            None => 0
-        }
-    }
-
     fn grandparent(&self) -> AVLTreeNode<T> {
         self.parent().parent()
     }
@@ -123,6 +159,17 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
         } else {
             self.grandparent().left()
         }
+    }
+
+    fn sibling(&self) -> AVLTreeNode<T> {
+        match self.compare(&self.parent().left()) {
+            true => self.parent().right(),
+            false => self.parent().left(),
+        }
+    }
+
+    fn set_height(&self, value: isize) {
+        self.unwrapped().borrow_mut().height = value;
     }
 
     fn set_value(&self, value: T) {
@@ -168,32 +215,92 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
         }
     }
 
-    fn set_height(&self, value: isize) {
-        self.unwrapped().borrow_mut().height = value;
-    }
+}
 
-    fn find_node(&self, value: T) -> AVLTreeNode<T> {
-        match self {
-            Some(_) => {
-                if value == self.value().unwrap() {
-                    self.clone()
-                } else if value < self.value().unwrap() {
-                    self.left().find_node(value)
-                }else {
-                    self.right().find_node(value)
-                    }
-            }, 
-            None => None
+/******************** AVL Tree Helpers ********************/
+
+pub struct AVLTree<T> {
+    root: AVLTreeNode<T>,
+}
+
+pub trait AVLTreeTraits<T> {
+    fn new() -> AVLTree<T>;
+    fn height(&self) -> usize;
+    fn is_empty(&self) -> bool;
+    fn size(&self) -> usize;
+    fn search(&self, value: T) -> AVLTreeNode<T>;
+    fn rotate(&mut self, node: &AVLTreeNode<T>, direction: bool);
+    fn fix_insert_height(&mut self, node: &AVLTreeNode<T>);
+    fn fix_delete_height(&mut self, node: &AVLTreeNode<T>);
+    fn insert_node(&mut self, value: T);
+    fn delete_node(&mut self, value: T);
+    fn print(&self);
+    fn count_leaves(&self) -> usize;
+}
+
+impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
+    fn new() -> AVLTree<T> {
+        AVLTree {
+            root: None, // IDK WHY THIS IS COMPLAINING
         }
     }
 
-    fn recalc_height(&mut self) {
-        let left = self.left();
-        let right = self.right();
-        self.set_height(1 + max(left.height(), right.height()));
+    fn height(&self) -> usize {
+        0
     }
-}
 
+    fn is_empty(&self) -> bool {
+        self.root.is_none()
+    }
+
+    // DO WE NEED SIZE?
+    fn size(&self) -> usize {
+        1
+    }
+
+    fn search(&self, value: T) -> AVLTreeNode<T> {
+        self.root.find_node(value)
+    }
+
+    // TODO
+    fn rotate(&mut self, node: &AVLTreeNode<T>, direction: bool) {
+
+    }
+
+    // TODO
+    fn fix_insert_height(&mut self, node: &AVLTreeNode<T>) {
+
+    }
+
+    // TODO
+    fn fix_delete_height(&mut self, node: &AVLTreeNode<T>) {
+
+    }
+
+    // TODO
+    fn insert_node(&mut self, value: T) {
+
+    }
+
+    // TODO
+    fn delete_node(&mut self, value: T) {
+
+    }
+
+    fn print(&self) {
+        if self.is_empty() {
+            println!("Tree is empty. Nothing to print.");
+        } else {
+            println!("Root: {:?}", self.root.value().unwrap());
+            self.root.print_traversal();
+            println!();
+        }
+    }
+
+    fn count_leaves(&self) -> usize {
+        self.root.count_leaves()
+    }   
+}
 // fn rotate_left(&mut self) {
 //     if self.right.is_none() {
 //         return

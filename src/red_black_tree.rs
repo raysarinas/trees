@@ -302,7 +302,6 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
     }
 
     fn search(&self, value: T) -> TreeNode<T> {
-        println!("GOING INTO FIND NODE");
         self.root.find_node(value)
     }
 
