@@ -119,5 +119,5 @@ fn main() {
     // print_test();
     delete_cases_2_4();
 
-    avl_test();
+    // avl_test();
 }

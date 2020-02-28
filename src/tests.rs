@@ -254,5 +254,5 @@ pub fn delete_cases_2_4() {
  }
 
  pub fn avl_test() {
-    let mut avl: avl_tree::AVLTree<u32> = avl_tree::AVLTree::new();
+    // let mut avl: avl_tree::AVLTree<u32> = avl_tree::AVLTree::new();
  }
