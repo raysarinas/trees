@@ -487,7 +487,6 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
                     println!("DELETE CASE 5 - RIGHT ROTATE");
                     sibling.left().set_color(NodeColor::Black);
                     self.rotate(&sibling.left(), ROTATE_RIGHT);
-                    // rotate_right(sibling.left());
                 }
             }
             else if node.compare(&node.parent().right()) {
@@ -495,7 +494,6 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
                 println!("DELETE CASE 5 - LEFT ROTATE"); 
                 sibling.right().set_color(NodeColor::Black);
                 self.rotate(&sibling.left(), ROTATE_LEFT);
-                 // rotate_left(sibling.left());
              }
          }
 
@@ -511,11 +509,9 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         if node.compare(&node.parent().left()) {
             sibling.right().set_color(NodeColor::Black);
             self.rotate(&sibling, ROTATE_LEFT);
-            // rotate_left(sibling);
         } else {
             sibling.left().set_color(NodeColor::Black);
             self.rotate(&sibling, ROTATE_RIGHT);
-            // rotate_right(sibling);
         }
 
     }

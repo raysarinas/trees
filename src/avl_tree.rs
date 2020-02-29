@@ -420,7 +420,47 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
 
     // TODO
     fn delete_node(&mut self, value: T) {
+        let mut node = self.search(value);
 
+        if node.is_none() {
+            return;
+        }
+
+        if node.left().value().is_some() && node.right().value().is_some() {
+            let mut larger = node.left();
+
+            while larger.right().value().is_some() { // larger.left()
+                larger = larger.right(); // larger.left()
+            }
+
+            node.set_value(larger.value().unwrap());
+            node = larger.clone();
+        }
+
+        // set node to null sibling
+        let mut child = match node.left() {
+            Some(_) => node.right(),
+            None => node.left()
+        };
+
+        if !node.compare(&self.root) && node.parent().is_some() {
+            child.set_parent(node.parent());
+            if node.compare(&node.parent().left()) {
+                node.parent().set_left(child.clone());
+            } else {
+                node.parent().set_right(child.clone());
+            }
+        } else if child.is_none() {
+            // empty tree if child is None
+            self.root = None;
+        } else {
+            // set root to child
+            self.root = child.clone();
+            child.set_parent(None);
+        }
+
+        // TODO: fixing height for delete here I think and rebalancing? idk
+        // fix_delete_height()
     }
 
     fn print(&self) {
