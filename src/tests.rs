@@ -16,7 +16,7 @@ pub fn benchmark_redblack() {
 
         for i in 0..tree_size/10 {
             match tree.contains(i) {
-                true => { },
+                true => { continue; },
                 false => println!("nope"),
             }
         }
@@ -37,7 +37,7 @@ pub fn benchmark_avl() {
 
         for i in 0..tree_size/10 {
             match tree.contains(i) {
-                true => { },
+                true => { continue; },
                 false => println!("nope"),
             }
         }

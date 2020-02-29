@@ -10,8 +10,15 @@ use std::io::{stdin, stdout, Write};
 static MAIN_MENU: &str = "
 1. Red Black Tree
 2. AVL Tree
-3. Run benchmark tests
+3. Run Benchmark Tests
 4. Exit
+";
+
+static BENCHMARK_MENU: &str = "
+BENCHMARK TESTS
+1. Red Black Tree Tests
+2. AVL Tree Tests
+3. Return to main menu
 ";
 
 static RBT_MENU: &str = "
@@ -100,6 +107,23 @@ fn rbt() {
     }
 }
 
+fn benchmark_tests() {
+    loop {
+        println!("{}", BENCHMARK_MENU);
+        let choice = get_input(">");
+        match choice {
+            1 => {
+                benchmark_redblack();
+            },
+            2 => {
+                benchmark_avl();
+            },
+            3 => break,
+            _ => println!("Invalid input!")
+        }
+    }
+}
+
 fn main() {
     // loop {
     //     println!("{}", MAIN_MENU);
@@ -107,7 +131,7 @@ fn main() {
     //     match choice {
     //         1 => rbt(),
     //         2 => avl(),
-    //         3 => it_works(),
+    //         3 => benchmark_tests(),
     //         4 => {
     //             println!("ok bye");
     //             break;
