@@ -251,6 +251,29 @@ pub fn it_works() {
 
 }
 
+pub fn test_delete_rbt() {
+    let mut rbt: red_black_tree::RBTree<u32> = red_black_tree::RBTree::new();
+
+    for x in 1..=10 {
+        rbt.insert_node(x);
+        println!("inserting ... {}", x);
+    }
+
+    rbt.delete_node(6);
+    // rbt.print();
+    rbt.delete_node(4);
+    // rbt.print();
+    rbt.delete_node(2);
+    // rbt.print();
+    rbt.delete_node(8);
+    rbt.delete_node(9);
+    rbt.delete_node(7);
+    rbt.delete_node(3);
+    rbt.delete_node(1);
+    rbt.delete_node(5);
+    // rbt.print();
+}
+
 pub fn delete_cases_1_3_5_6() {
     let mut rbt: red_black_tree::RBTree<u32> = red_black_tree::RBTree::new();
     

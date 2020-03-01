@@ -80,13 +80,13 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
         match self.value() {
             Some(_) => {
                 if value == self.value().unwrap() {
-                    println!("inserted values are equal");
+                    // println!("inserted values are equal");
                     self.clone()
                 } else if value < self.value().unwrap() {
-                    println!("going to LEFT");
+                    // println!("going to LEFT");
                     self.left().find_node(value)
                 } else if value > self.value().unwrap() {
-                    println!("trying to find in RIGHT");
+                    // println!("trying to find in RIGHT");
                     self.right().find_node(value)
                     }
                 else {
@@ -116,7 +116,7 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
     }
 
     fn recalc_height(&mut self) {
-        println!("enering recalc height. trying to rebalance === {:?}", self.value());
+        // println!("enering recalc height. trying to rebalance === {:?}", self.value());
         let left = self.left();
         let right = self.right();
         self.set_height(1 + max(left.height(), right.height()));
@@ -338,13 +338,13 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
 
     // TODO
     fn fix_insert_height(&mut self, node: &mut AVLTreeNode<T>) {
-        println!("entering fix_insert_height");
+        // println!("entering fix_insert_height");
         node.recalc_height();
         
         let balance = Self::get_balance(node);
         let node_val = node.value();
-        println!("value of node = {:?} and balance = {:?}", node_val, balance);
-        println!("HEIGHT OF NODE = {:?}", node.height());
+        // println!("value of node = {:?} and balance = {:?}", node_val, balance);
+        // println!("HEIGHT OF NODE = {:?}", node.height());
 
         if balance > 1 {
             // left 2 heavy
@@ -393,57 +393,57 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
 
                 // Left Cases
         if balance > 1 {
-            println!("LEFT 2 HEAVY");
+            // println!("LEFT 2 HEAVY");
             // LEFT RIGHT
             if node.left().right().height() > node.left().left().height() {
-                println!(">>>>>>>>>>>>>>>> LEFT RIGHT CASE");
+                // println!(">>>>>>>>>>>>>>>> LEFT RIGHT CASE");
                 self.rotate(&node.left().right(), ROTATE_LEFT);
                 // node.set_left(self.rotate(&node.left(), ROTATE_LEFT));
                 self.rotate(&node.left(), ROTATE_RIGHT);
                 self.root.recalc_height();
-                println!("LEAVES left is {:?} and right is {:?}", self.root.left().height(), self.root.right().height());
+                // println!("LEAVES left is {:?} and right is {:?}", self.root.left().height(), self.root.right().height());
                 return
             }
             // LEFT LEFT 
             else if node.left().right().height() < node.left().left().height() {
-                println!(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>LEFTLEFT");
+                // println!(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>LEFTLEFT");
                 self.rotate(&node.left(), ROTATE_RIGHT);
                 self.root.recalc_height();
-                println!("height is now ====== {:?}", self.root.height());
-                println!("left is {:?} and right is {:?}", self.root.left().height(), self.root.right().height());
+                // println!("height is now ====== {:?}", self.root.height());
+                // println!("left is {:?} and right is {:?}", self.root.left().height(), self.root.right().height());
                 return;
             }
         }
 
         // RIGHT Cases
         if balance < -1 {
-            println!("LEFT 2 HEAVY");
+            // println!("LEFT 2 HEAVY");
             // RIGHT LEFT RIGHT
 
             if node.right().left().height() > node.right().right().height() {
-                println!(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>RIGHT LEFT");
+                // println!(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>RIGHT LEFT");
                 self.rotate(&node.right().left(), ROTATE_RIGHT);
                 // node.set_right(self.rotate(&node.right().left(), ROTATE_RIGHT));
                 self.rotate(&node.right(), ROTATE_LEFT);
                 self.root.recalc_height();
-                println!("height is now ====== {:?}", self.root.height());
-                println!("left is {:?} and right is {:?}", self.root.left().height(), self.root.right().height());
+                // println!("height is now ====== {:?}", self.root.height());
+                // println!("left is {:?} and right is {:?}", self.root.left().height(), self.root.right().height());
                 return
             }
             // LEFT LEFT 
             else if node.right().left().height() < node.right().right().height() {
-                println!("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%RIGHT RIGHT");
+                // println!("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%RIGHT RIGHT");
                 // self.rotate(&node.left(), ROTATE_RIGHT);
                 self.rotate(&node.right(), ROTATE_LEFT);
                 self.root.recalc_height();
-                println!("height is now ====== {:?}", self.root.height());
-                println!("left is {:?} and right is {:?}", self.root.left().height(), self.root.right().height());
+                // println!("height is now ====== {:?}", self.root.height());
+                // println!("left is {:?} and right is {:?}", self.root.left().height(), self.root.right().height());
                 return;
             }
         }
 
         if node.parent().is_some() && !node.compare(&self.root) {
-            println!("parent is some");
+            // println!("parent is some");
             self.fix_insert_height(&mut node.parent());
         }
     }
@@ -458,8 +458,8 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
 
         // REGULAR BINARY SEARCH TREE INSERTION 
         let mut new_node = AVLTreeNode::new(value);
-        let did_find_node = self.search(value).is_some();
-        println!("did find node? = {}", did_find_node);
+        // let did_find_node = self.search(value).is_some();
+        // println!("did find node? = {}", did_find_node);
         if self.is_empty() {
             self.root = new_node.clone();
             return
@@ -499,7 +499,7 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         }
 
         // TODO: AVL REBALANCING HERE
-        println!("GOING REBALANCE INSERT");
+        // println!("GOING REBALANCE INSERT");
         self.fix_insert_height(&mut new_node);
     }
 

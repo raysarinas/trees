@@ -83,15 +83,25 @@ fn rbt() {
         match choice {
             1 => {
                 let value = get_input("Value to insert:");
-                rbt.insert_node(value); // TODO: error handling?
-                println!("Inserted {}", value);
+                let old_size = rbt.size();
+                rbt.insert_node(value);
+                if old_size < rbt.size() {
+                    println!("Successfully inserted {}", value);
+                } else {
+                    println!("Error inserting value");
+                }
             },
             2 => {
                 let value = get_input("Value to delete:");
-                rbt.delete_node(value); // TODO: error handling?
-                println!("Deleted {}", value);
+                let old_size = rbt.size();
+                rbt.delete_node(value);
+                if old_size > rbt.size() {
+                    println!("Successfully deleted {}", value);
+                } else {
+                    println!("Error deleting value");
+                }
             },
-            3 => println!("{}", rbt.size()),
+            3 => println!("{}", rbt.count_leaves()),
             4 => println!("{}", rbt.height()),
             5 => rbt.print(),
             6 => {
@@ -142,6 +152,6 @@ fn main() {
     // it_works();
     // print_test();
     // delete_cases_2_4();
-
-    avl_test();
+    test_delete_rbt();
+    // avl_test();
 }
