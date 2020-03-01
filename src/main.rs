@@ -167,5 +167,6 @@ fn main() {
     // print_test();
     // delete_cases_2_4();
     // test_delete_rbt();
-    avl_test();
+    // avl_test();
+    delete_avl();
 }

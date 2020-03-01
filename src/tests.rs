@@ -384,3 +384,50 @@ pub fn delete_cases_2_4() {
         //     println!();
         // }
  }
+
+ pub fn delete_avl() {
+    let mut avl: avl_tree::AVLTree<u32> = avl_tree::AVLTree::new();
+    
+    for x in 1..=10 {
+        avl.insert_node(x);
+        println!("inserting ... {}", x);
+    }
+    avl.print();
+    println!("height = {}", avl.height());
+    println!("leaves = {}", avl.count_leaves());
+    println!("==========================");
+    println!("deleting {} ...", 4);
+    avl.delete_node(4);
+    println!("height = {}", avl.height());
+    println!("leaves = {}", avl.count_leaves());
+    avl.print();
+    println!("==========================");
+    println!("deleting {} ...", 8);
+    avl.delete_node(8);
+    println!("height = {}", avl.height());
+    println!("leaves = {}", avl.count_leaves());
+    avl.print();
+    println!("==========================");
+    println!("deleting {} ...", 1);
+    avl.delete_node(1);
+    println!("height = {}", avl.height());
+    println!("leaves = {}", avl.count_leaves());
+    avl.print();
+    println!("==========================");
+    println!("deleting {} ...", 3);
+    avl.delete_node(3);
+    println!("height = {}", avl.height());
+    println!("leaves = {}", avl.count_leaves());
+    avl.print();
+    println!("==========================");
+    println!("deleting {} ...", 2);
+    avl.delete_node(2);
+    println!("height = {}", avl.height());
+    println!("leaves = {}", avl.count_leaves());
+    avl.print();
+
+
+
+    println!();
+
+}

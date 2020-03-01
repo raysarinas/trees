@@ -1,6 +1,5 @@
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::mem::{replace, swap};
 use std::cmp::max;
 
 static ROTATE_LEFT: bool = true;
@@ -109,14 +108,15 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
         if self.value().is_none() {
             0
         } else if self.left().value().is_none() && self.right().value().is_none() {
+            println!("leaf is = {:?} with parent = {:?}", self.value(), self.parent().value());
             1
         } else {
+            println!("PARENT = {:?} WITH NODE ON LEFT = {:?} ===== NODE ON RIGHT = {:?}", self.value(), self.left().value(), self.right().value());
             self.left().count_leaves() + self.right().count_leaves()
         }
     }
 
     fn recalc_height(&mut self) {
-        // println!("enering recalc height. trying to rebalance === {:?}", self.value());
         let left = self.left();
         let right = self.right();
         self.set_height(1 + max(left.height(), right.height()));
@@ -337,7 +337,7 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
                 return
             }
             // LEFT LEFT 
-            else if node.left().right().height() < node.left().left().height() {
+            else if node.left().right().height() <= node.left().left().height() {
                 // println!(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>LEFTLEFT");
                 self.rotate(&node.left(), ROTATE_RIGHT);
                 self.root.recalc_height();
@@ -349,10 +349,10 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
 
         // RIGHT Cases
         if balance < -1 {
-            // println!("LEFT 2 HEAVY");
+            println!("RIGHT 2 HEAVY");
             // RIGHT LEFT RIGHT
             if node.right().left().height() > node.right().right().height() {
-                // println!(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>RIGHT LEFT");
+                println!(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>RIGHT LEFT");
                 self.rotate(&node.right().left(), ROTATE_RIGHT);
                 // node.set_right(self.rotate(&node.right().left(), ROTATE_RIGHT));
                 self.rotate(&node.right(), ROTATE_LEFT);
@@ -361,15 +361,18 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
                 // println!("left is {:?} and right is {:?}", self.root.left().height(), self.root.right().height());
                 return
             }
-            // LEFT LEFT 
-            else if node.right().left().height() < node.right().right().height() {
-                // println!("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%RIGHT RIGHT");
+            // RIGHT RIGHT
+            else if node.right().left().height() <= node.right().right().height() {
+                println!("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%RIGHT RIGHT");
                 // self.rotate(&node.left(), ROTATE_RIGHT);
                 self.rotate(&node.right(), ROTATE_LEFT);
                 self.root.recalc_height();
                 // println!("height is now ====== {:?}", self.root.height());
                 // println!("left is {:?} and right is {:?}", self.root.left().height(), self.root.right().height());
                 return;
+            }
+            else {
+                println!("DIDNT GET TO ANYTHING");
             }
         }
 
