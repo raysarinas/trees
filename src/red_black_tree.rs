@@ -435,7 +435,6 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
     fn fix_delete_color(&mut self, node: &TreeNode<T>) {
         // CASE 1: node is root so done (it’s already black)
         if node.compare(&self.root) {
-            println!("CASE 1");
             return;
         }
 
@@ -443,7 +442,6 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
 
         // CASE 2
         if sibling.is_red() {
-            println!("CASE 2");
             sibling.parent().set_color(NodeColor::Red);
             sibling.set_color(NodeColor::Black);
 
@@ -460,7 +458,6 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         // CASE 3
         if node.parent().is_black() && sibling.is_black() &&
             sibling.left().is_black() && sibling.right().is_black() {
-                println!("CASE 3");
                 sibling.set_color(NodeColor::Red);
                 self.fix_delete_color(&node.parent());
                 return;
@@ -469,7 +466,6 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         // CASE 4
         if node.parent().is_red() && sibling.is_black() &&
             sibling.left().is_black() && sibling.right().is_black() {
-                println!("CASE 4");
                 sibling.set_color(NodeColor::Red);
                 node.parent().set_color(NodeColor::Black);
                 return;
@@ -477,7 +473,6 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
 
         // CASE 5
         if sibling.is_black() {
-            println!("CASE 5");
             sibling.set_color(NodeColor::Red);
             if node.compare(&node.parent().left()) &&
                 sibling.left().is_red() && sibling.right().is_black() {
@@ -496,7 +491,6 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         // CASE 6
         sibling.set_color(node.parent().color());
         node.parent().set_color(NodeColor::Black);
-        println!("CASE 6");
         if node.compare(&node.parent().left()) {
             sibling.right().set_color(NodeColor::Black);
             self.rotate(&sibling, ROTATE_LEFT);
@@ -526,7 +520,7 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         }
 
         // set node to null sibling
-        let mut child = match node.left() {
+        let mut child = match node.left().value() {
             Some(_) => node.left(),
             None => node.right()
         };
@@ -541,6 +535,7 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         } else if child.is_none() {
             // empty tree if child is None
             self.root = None;
+            return;
         } else {
             // set root to child
             self.root = child.clone();

@@ -259,6 +259,11 @@ pub fn test_delete_rbt() {
         println!("inserting ... {}", x);
     }
 
+    assert!(rbt.is_empty() == false);
+    rbt.print();
+
+    println!("deleting everything ..");
+
     rbt.delete_node(6);
     // rbt.print();
     rbt.delete_node(4);
@@ -271,7 +276,9 @@ pub fn test_delete_rbt() {
     rbt.delete_node(3);
     rbt.delete_node(1);
     rbt.delete_node(5);
-    // rbt.print();
+    rbt.delete_node(10);
+    assert!(rbt.is_empty() == true);
+    rbt.print();
 }
 
 pub fn delete_cases_1_3_5_6() {
