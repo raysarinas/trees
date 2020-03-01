@@ -546,6 +546,7 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
 
         // TODO: fixing height for delete here I think and rebalancing? idk
         // fix_delete_height()
+        self.fix_insert_height(&mut node);
     }
 
     fn print(&self) {
