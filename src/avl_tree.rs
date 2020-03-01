@@ -106,9 +106,9 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
     }
 
     fn count_leaves(&self) -> usize {
-        if self.is_none() {
+        if self.value().is_none() {
             0
-        } else if self.left().is_none() && self.right().is_none() {
+        } else if self.left().value().is_none() && self.right().value().is_none() {
             1
         } else {
             self.left().count_leaves() + self.right().count_leaves()
@@ -240,9 +240,8 @@ pub trait AVLTreeTraits<T> {
     fn size(&self) -> usize;
     fn search(&self, value: T) -> AVLTreeNode<T>;
     fn get_balance(node: &AVLTreeNode<T>) -> isize;
-    fn rotate(&mut self, node: &AVLTreeNode<T>, direction: bool) -> AVLTreeNode<T>;
-    fn fix_insert_height(&mut self, node: &mut AVLTreeNode<T>);
-    fn fix_delete_height(&mut self, node: &AVLTreeNode<T>);
+    fn rotate(&mut self, node: &AVLTreeNode<T>, direction: bool);
+    fn rebalance(&mut self, node: &mut AVLTreeNode<T>);
     fn insert_node(&mut self, value: T);
     fn delete_node(&mut self, value: T);
     fn print(&self);
@@ -282,21 +281,7 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         }
     }
 
-    // TODO
-    fn rotate(&mut self, node: &AVLTreeNode<T>, direction: bool) -> AVLTreeNode<T> {
-        // let mut v = node.right();
-        // if direction == ROTATE_RIGHT {
-        //     v = node.left();
-        // }
-        
-        // v.set_parent(node.parent());
-
-        // if direction == ROTATE_LEFT {
-        //     node.set_right(v.left());
-        //     match node.right() {
-        //         Some(tree_node) => node.right().set_parent(*node),
-        //     }
-        // }
+    fn rotate(&mut self, node: &AVLTreeNode<T>, direction: bool) {
         
         let mut parent = node.parent().clone();
         let mut grandparent = node.grandparent().clone();
@@ -331,67 +316,14 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         }
 
         node.recalc_height();
-        // parent.recalc_height();
-
-        node
     }
 
     // TODO
-    fn fix_insert_height(&mut self, node: &mut AVLTreeNode<T>) {
-        // println!("entering fix_insert_height");
+    fn rebalance(&mut self, node: &mut AVLTreeNode<T>) {
         node.recalc_height();
-        
         let balance = Self::get_balance(node);
-        let node_val = node.value();
-        // println!("value of node = {:?} and balance = {:?}", node_val, balance);
-        // println!("HEIGHT OF NODE = {:?}", node.height());
 
-        if balance > 1 {
-            // left 2 heavy
-        }
-
-        if balance < -1 {
-            // right 2 heavy
-            
-        }
-
-        // Left Left Case
-        // if balance > 1 {//&& node_val < node.left().value() {
-        //     self.rotate(&node.left(), ROTATE_RIGHT);
-        //     return
-        // }
-
-        // Right Right Case
-        // if balance < -1 {//&& node_val > node.right().value() {
-        //     self.rotate(&node.right(), ROTATE_LEFT);
-        //     return
-        // }
-
-        // // Left Cases
-        // if balance > 1 {
-        //     println!("LEFT 2 HEAVY");
-        //     // LEFT RIGHT
-        //     if node.left().right().height() > node.left().left().height() {
-        //         println!(">>>>>>>>>>>>>>>> LEFT RIGHT CASE");
-        //         self.rotate(&node.left().right(), ROTATE_LEFT);
-        //         // node.set_left(self.rotate(&node.left(), ROTATE_LEFT));
-        //         self.rotate(&node.left(), ROTATE_RIGHT);
-        //         self.root.recalc_height();
-        //         println!("LEAVES left is {:?} and right is {:?}", self.root.left().height(), self.root.right().height());
-        //         return
-        //     }
-        //     // LEFT LEFT 
-        //     else if node.left().right().height() < node.left().left().height() {
-        //         println!(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>LEFTLEFT");
-        //         self.rotate(&node.left(), ROTATE_RIGHT);
-        //         self.root.recalc_height();
-        //         println!("height is now ====== {:?}", self.root.height());
-        //         println!("left is {:?} and right is {:?}", self.root.left().height(), self.root.right().height());
-        //         return;
-        //     }
-        // }
-
-                // Left Cases
+        // Left Cases
         if balance > 1 {
             // println!("LEFT 2 HEAVY");
             // LEFT RIGHT
@@ -419,7 +351,6 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         if balance < -1 {
             // println!("LEFT 2 HEAVY");
             // RIGHT LEFT RIGHT
-
             if node.right().left().height() > node.right().right().height() {
                 // println!(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>RIGHT LEFT");
                 self.rotate(&node.right().left(), ROTATE_RIGHT);
@@ -443,23 +374,14 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         }
 
         if node.parent().is_some() && !node.compare(&self.root) {
-            // println!("parent is some");
-            self.fix_insert_height(&mut node.parent());
+            self.rebalance(&mut node.parent());
         }
     }
 
-    // TODO
-    fn fix_delete_height(&mut self, node: &AVLTreeNode<T>) {
-
-    }
-
-    // TODO
     fn insert_node(&mut self, value: T) {
-
         // REGULAR BINARY SEARCH TREE INSERTION 
         let mut new_node = AVLTreeNode::new(value);
-        // let did_find_node = self.search(value).is_some();
-        // println!("did find node? = {}", did_find_node);
+
         if self.is_empty() {
             self.root = new_node.clone();
             return
@@ -498,12 +420,9 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
             }
         }
 
-        // TODO: AVL REBALANCING HERE
-        // println!("GOING REBALANCE INSERT");
-        self.fix_insert_height(&mut new_node);
+        self.rebalance(&mut new_node);
     }
 
-    // TODO
     fn delete_node(&mut self, value: T) {
         let mut node = self.search(value);
 
@@ -544,9 +463,7 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
             child.set_parent(None);
         }
 
-        // TODO: fixing height for delete here I think and rebalancing? idk
-        // fix_delete_height()
-        self.fix_insert_height(&mut node);
+        self.rebalance(&mut node);
     }
 
     fn print(&self) {
@@ -570,29 +487,3 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         }
     }
 }
-// fn rotate_left(&mut self) {
-//     if self.right.is_none() {
-//         return
-//     }
-
-//     let right_child = self.right.as_mut().unwrap().borrow();
-//     let right_left = right_child.left.take();
-//     let right_right = right_child.right.take();
-
-//     // Replace current right child with right grandchild
-//     let mut new_left_tree = replace(&mut self.right, right_right);
-//     swap(&mut self.value, &mut new_left_tree.as_mut().unwrap().borrow().value);
-
-//     let left_tree = self.left.take();
-//     let new_left_node = new_left_tree.as_mut().unwrap().borrow();
-    
-//     new_left_node.right = right_left;
-//     new_left_node.left = left_tree;
-//     self.left = new_left_tree;
-
-//     if let Some(node) = self.left.as_mut() {
-//         self.left.as_mut().unwrap().borrow().recalc_height();
-//     }
-
-//     self.recalc_height();
-// }
