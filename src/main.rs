@@ -135,23 +135,23 @@ fn benchmark_tests() {
 }
 
 fn main() {
-    // loop {
-    //     println!("{}", MAIN_MENU);
-    //     let choice = get_input(">");
-    //     match choice {
-    //         1 => rbt(),
-    //         2 => avl(),
-    //         3 => benchmark_tests(),
-    //         4 => {
-    //             println!("ok bye");
-    //             break;
-    //         },
-    //         _ => println!("Invalid input!")
-    //     }
-    // }
+    loop {
+        println!("{}", MAIN_MENU);
+        let choice = get_input(">");
+        match choice {
+            1 => rbt(),
+            2 => avl(),
+            3 => benchmark_tests(),
+            4 => {
+                println!("ok bye");
+                break;
+            },
+            _ => println!("Invalid input!")
+        }
+    }
     // it_works();
     // print_test();
     // delete_cases_2_4();
-    test_delete_rbt();
+    // test_delete_rbt();
     // avl_test();
 }

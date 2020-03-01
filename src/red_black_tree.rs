@@ -99,7 +99,7 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy + PartialOrd + std::fmt::Deb
     }
 
     fn node_height(&self) -> usize {
-        match self {
+        match self.value() {
             Some(_) => {
                 let left_height = self.left().node_height();
                 let right_height = self.right().node_height();
@@ -127,9 +127,9 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy + PartialOrd + std::fmt::Deb
     }
 
     fn count_leaves(&self) -> usize {
-        if self.is_none() {
+        if self.value().is_none() {
             0
-        } else if self.left().is_none() && self.right().is_none() {
+        } else if self.left().value().is_none() && self.right().value().is_none() {
             1
         } else {
             self.left().count_leaves() + self.right().count_leaves()
@@ -535,6 +535,7 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         } else if child.is_none() {
             // empty tree if child is None
             self.root = None;
+            self.len -= 1;
             return;
         } else {
             // set root to child
