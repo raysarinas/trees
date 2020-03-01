@@ -316,26 +316,41 @@ pub fn delete_cases_2_4() {
         println!("\n==== Start Testing AVLTree Here ====\n");
 
         let mut avl: avl_tree::AVLTree<u32> = avl_tree::AVLTree::new();
-        let mut vec_in: Vec<u32> = vec![5, 70, 35, 8, 98, 60, 99, 99, 1, 84, 17];
+        // let mut vec_in: Vec<u32> = vec![5, 70, 35]; // right left //, 8, 98, 60]; // poop on 99];//, 8, 98, 60, 99, 99, 1, 84, 17];
+        // let mut vec_in: Vec<u32> = vec![5, 3, 1]; // left left
+        // let mut vec_in: Vec<u32> = vec![5, 1, 3]; // left right
+        // let mut vec_in: Vec<u32> = vec![5, 70, 90]; // right right
+        let mut vec_in: Vec<u32> = vec![5, 70, 35, 98, 98, 60, 99, 99, 1, 84, 17];//, 98, 60];
+
         println!("AVL Tree INIT = {:?}", avl);
         for &x in vec_in.iter() {
             println!("inserting {} ...", x);
             avl.insert_node(x);
-            println!("size is now = {}", avl.size());
+            // println!("size is now = {}", avl.size());
             avl.print();
             println!("height = {}", avl.height());
             println!("leaves = {}", avl.count_leaves());
             println!();
         }
     
-        vec_in = vec![17, 84, 99, 5, 1, 60];
-        for &x in vec_in.iter() {
-            println!("deleting {} ...", x);
-            avl.delete_node(x);
-            println!("size is now = {}", avl.size());
-            avl.print();
-            println!("height = {}", avl.height());
-            println!("leaves = {}", avl.count_leaves());
-            println!();
-        }
+        println!("inserting {} ...", 98);
+        avl.insert_node(98);
+        // println!("size is now = {}", avl.size());
+        avl.print();
+        println!("height = {}", avl.height());
+        println!("leaves = {}", avl.count_leaves());
+        println!();
+
+
+    
+        // vec_in = vec![17, 84, 99, 5, 1, 60];
+        // for &x in vec_in.iter() {
+        //     println!("deleting {} ...", x);
+        //     avl.delete_node(x);
+        //     println!("size is now = {}", avl.size());
+        //     avl.print();
+        //     println!("height = {}", avl.height());
+        //     println!("leaves = {}", avl.count_leaves());
+        //     println!();
+        // }
  }

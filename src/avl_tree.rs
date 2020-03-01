@@ -77,19 +77,21 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
     }
 
     fn find_node(&self, value: T) -> AVLTreeNode<T> {
-        match self {
+        match self.value() {
             Some(_) => {
-                println!("hehe2");
                 if value == self.value().unwrap() {
-                    println!("hehe2.1");
+                    println!("inserted values are equal");
                     self.clone()
                 } else if value < self.value().unwrap() {
-                    println!("hehe2.2");
+                    println!("going to LEFT");
                     self.left().find_node(value)
-                }else {
-                    println!("hehe2.3");
+                } else if value > self.value().unwrap() {
+                    println!("trying to find in RIGHT");
                     self.right().find_node(value)
                     }
+                else {
+                    None
+                }
             }, 
             None => None
         }
@@ -114,6 +116,7 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
     }
 
     fn recalc_height(&mut self) {
+        println!("enering recalc height. trying to rebalance === {:?}", self.value());
         let left = self.left();
         let right = self.right();
         self.set_height(1 + max(left.height(), right.height()));
@@ -316,52 +319,131 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
                 node.left().set_parent(parent.clone());
             }
             parent.set_right(node.left());
+            parent.recalc_height();
             node.set_left(parent);
         } else {
             if node.right().is_some() {
                 node.right().set_parent(parent.clone());
             }
             parent.set_left(node.right());
+            parent.recalc_height();
             node.set_right(parent);
         }
+
+        node.recalc_height();
+        // parent.recalc_height();
 
         node
     }
 
     // TODO
     fn fix_insert_height(&mut self, node: &mut AVLTreeNode<T>) {
+        println!("entering fix_insert_height");
         node.recalc_height();
         
         let balance = Self::get_balance(node);
         let node_val = node.value();
+        println!("value of node = {:?} and balance = {:?}", node_val, balance);
+        println!("HEIGHT OF NODE = {:?}", node.height());
+
+        if balance > 1 {
+            // left 2 heavy
+        }
+
+        if balance < -1 {
+            // right 2 heavy
+            
+        }
 
         // Left Left Case
-        if balance > 1 && node_val < node.left().value() {
-            self.rotate(node, ROTATE_RIGHT);
-            return
-        }
+        // if balance > 1 {//&& node_val < node.left().value() {
+        //     self.rotate(&node.left(), ROTATE_RIGHT);
+        //     return
+        // }
 
         // Right Right Case
-        if balance < -1 && node_val > node.right().value() {
-            self.rotate(node, ROTATE_LEFT);
-            return
+        // if balance < -1 {//&& node_val > node.right().value() {
+        //     self.rotate(&node.right(), ROTATE_LEFT);
+        //     return
+        // }
+
+        // // Left Cases
+        // if balance > 1 {
+        //     println!("LEFT 2 HEAVY");
+        //     // LEFT RIGHT
+        //     if node.left().right().height() > node.left().left().height() {
+        //         println!(">>>>>>>>>>>>>>>> LEFT RIGHT CASE");
+        //         self.rotate(&node.left().right(), ROTATE_LEFT);
+        //         // node.set_left(self.rotate(&node.left(), ROTATE_LEFT));
+        //         self.rotate(&node.left(), ROTATE_RIGHT);
+        //         self.root.recalc_height();
+        //         println!("LEAVES left is {:?} and right is {:?}", self.root.left().height(), self.root.right().height());
+        //         return
+        //     }
+        //     // LEFT LEFT 
+        //     else if node.left().right().height() < node.left().left().height() {
+        //         println!(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>LEFTLEFT");
+        //         self.rotate(&node.left(), ROTATE_RIGHT);
+        //         self.root.recalc_height();
+        //         println!("height is now ====== {:?}", self.root.height());
+        //         println!("left is {:?} and right is {:?}", self.root.left().height(), self.root.right().height());
+        //         return;
+        //     }
+        // }
+
+                // Left Cases
+        if balance > 1 {
+            println!("LEFT 2 HEAVY");
+            // LEFT RIGHT
+            if node.left().right().height() > node.left().left().height() {
+                println!(">>>>>>>>>>>>>>>> LEFT RIGHT CASE");
+                self.rotate(&node.left().right(), ROTATE_LEFT);
+                // node.set_left(self.rotate(&node.left(), ROTATE_LEFT));
+                self.rotate(&node.left(), ROTATE_RIGHT);
+                self.root.recalc_height();
+                println!("LEAVES left is {:?} and right is {:?}", self.root.left().height(), self.root.right().height());
+                return
+            }
+            // LEFT LEFT 
+            else if node.left().right().height() < node.left().left().height() {
+                println!(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>LEFTLEFT");
+                self.rotate(&node.left(), ROTATE_RIGHT);
+                self.root.recalc_height();
+                println!("height is now ====== {:?}", self.root.height());
+                println!("left is {:?} and right is {:?}", self.root.left().height(), self.root.right().height());
+                return;
+            }
         }
 
-        // Left Right Case
-        if balance > 1 && node_val > node.left().value() {
-            node.set_left(self.rotate(&node.left(), ROTATE_LEFT));
-            self.rotate(node, ROTATE_RIGHT);
-            return
+        // RIGHT Cases
+        if balance < -1 {
+            println!("LEFT 2 HEAVY");
+            // RIGHT LEFT RIGHT
+
+            if node.right().left().height() > node.right().right().height() {
+                println!(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>RIGHT LEFT");
+                self.rotate(&node.right().left(), ROTATE_RIGHT);
+                // node.set_right(self.rotate(&node.right().left(), ROTATE_RIGHT));
+                self.rotate(&node.right(), ROTATE_LEFT);
+                self.root.recalc_height();
+                println!("height is now ====== {:?}", self.root.height());
+                println!("left is {:?} and right is {:?}", self.root.left().height(), self.root.right().height());
+                return
+            }
+            // LEFT LEFT 
+            else if node.right().left().height() < node.right().right().height() {
+                println!("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%RIGHT RIGHT");
+                // self.rotate(&node.left(), ROTATE_RIGHT);
+                self.rotate(&node.right(), ROTATE_LEFT);
+                self.root.recalc_height();
+                println!("height is now ====== {:?}", self.root.height());
+                println!("left is {:?} and right is {:?}", self.root.left().height(), self.root.right().height());
+                return;
+            }
         }
 
-        // Right Left Case
-        if balance < -1 && node_val < node.right().value() {
-            node.set_right(self.rotate(&node.right().left(), ROTATE_RIGHT));
-            self.rotate(node, ROTATE_LEFT);
-            return
-        }
-
-        if node.parent().is_some() {
+        if node.parent().is_some() && !node.compare(&self.root) {
+            println!("parent is some");
             self.fix_insert_height(&mut node.parent());
         }
     }
@@ -376,15 +458,17 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
 
         // REGULAR BINARY SEARCH TREE INSERTION 
         let mut new_node = AVLTreeNode::new(value);
+        let did_find_node = self.search(value).is_some();
+        println!("did find node? = {}", did_find_node);
         if self.is_empty() {
             self.root = new_node.clone();
             return
-        }
+        }   
+
         else if self.search(value).is_some() {
             println!("Value already exists!");
             return;
         }
-
         else {
             let mut curr_node = self.root.clone();
             let mut curr_node_parent: AVLTreeNode<T> = None;
@@ -415,6 +499,7 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         }
 
         // TODO: AVL REBALANCING HERE
+        println!("GOING REBALANCE INSERT");
         self.fix_insert_height(&mut new_node);
     }
 
