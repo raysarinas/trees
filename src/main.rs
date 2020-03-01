@@ -3,6 +3,7 @@ mod red_black_tree;
 mod tests;
 
 use red_black_tree::*;
+use avl_tree::*;
 use tests::*;
 
 use std::io::{stdin, stdout, Write};
@@ -58,16 +59,29 @@ fn get_input(prompt: &str) -> u32 {
 }
 
 fn avl() {
+    let mut avl: AVLTree<u32> = AVLTree::new();
     loop {
         println!("{}", AVL_MENU);
         let choice = get_input(">");
         match choice {
-            1 => {},
-            2 => {},
-            3 => {},
-            4 => {},
-            5 => {},
-            6 => {},
+            1 => {
+                let value = get_input("Value to insert:");
+                avl.insert_node(value);
+            },
+            2 => {
+                let value = get_input("Value to delete:");
+                avl.delete_node(value);
+            },
+            3 => println!("{}", avl.count_leaves()),
+            4 => println!("{}", avl.height()),
+            5 => avl.print(),
+            6 => {
+                if avl.is_empty() {
+                    println!("Tree is empty.");
+                } else {
+                    println!("nah tree is full of leaves");
+                }
+            },
             7 => break,
             _ => println!("Invalid input!")
         }
