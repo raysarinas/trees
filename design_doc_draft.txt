@@ -10,11 +10,19 @@ Design Rationale
 
 We designed our implementation for the different binary search trees with the goal of providing a reusable crate that could be extended to other types of binary search trees that could potentially be self-balancing. We chose to support:
 
-[List of operations here]
+[Description of operations here]
+- inserting
+- deleting
+- leaf counting (this is the same for both)
+- height of a tree
+- in-order print traversal
+- is empty?
 
 Some of the innovations:
 - include wrapper functions - encapsulating functionality relating to handling and managing various smart pointers in Rust. Talk about accessing parent/child/sibling/etc
 - Using traits to extend and implement commonalities between the RBT and AVL
+- Could talk about how some of the binary search functionality for insertion and deletion were re-used.
+- Talk about how we specifically chose to implement a top-down approach for insertion in both types of trees so that we could re-use code. Talk about how bottom-up approach maybe for AVL Tree insertion could improve run-time speed with regards to benchmarking.
 - Implement concept of smart pointers or something
 - something about command line interface
 - individual implementations provide different thing
@@ -39,10 +47,40 @@ Elapsed time for 40000: 31 ms
 Elapsed time for 70000: 57 ms
 Elapsed time for 100000: 87 ms
 Elapsed time for 130000: 121 ms
+==
+Elapsed time for 10000: 6 ms
+Elapsed time for 40000: 29 ms
+Elapsed time for 70000: 58 ms
+Elapsed time for 100000: 86 ms
+Elapsed time for 130000: 116 ms
+==
+Elapsed time for 10000: 6 ms
+Elapsed time for 40000: 31 ms
+Elapsed time for 70000: 58 ms
+Elapsed time for 100000: 88 ms
+Elapsed time for 130000: 114 ms
 
-AVL TREE BENCHMARK RESULTS: - L8er
+AVL TREE BENCHMARK RESULTS:
+Elapsed time for 10000: 8 ms
+Elapsed time for 40000: 37 ms
+Elapsed time for 70000: 65 ms
+Elapsed time for 100000: 101 ms
+Elapsed time for 130000: 129 ms
+==
+Elapsed time for 10000: 7 ms
+Elapsed time for 40000: 34 ms
+Elapsed time for 70000: 64 ms
+Elapsed time for 100000: 98 ms
+Elapsed time for 130000: 140 ms
+==
+Elapsed time for 10000: 7 ms
+Elapsed time for 40000: 34 ms
+Elapsed time for 70000: 64 ms
+Elapsed time for 100000: 98 ms
+Elapsed time for 130000: 130 ms
 
 - AVL is probably going to be more efficient because of height rebalancing factor. 
+- AVL apparently not as efficient (likely to due top-bottom implementation)
 - Other test cases should be accommodated including random insertions of varying numbers instead of in-order insertion. Could also consider decreasing numbers for inserting. Also consider deleting operations as a means of measuring efficiency. 
 - Yes probably good idea to include other data structures as a baseline. BST might be good baseline since it is essentially an RBT/AVL Tree that like doesn't balance itself or whatever we can figure out what to say later. 
 
