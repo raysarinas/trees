@@ -445,9 +445,9 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         }
 
         // set node to null sibling
-        let mut child = match node.left() {
-            Some(_) => node.right(),
-            None => node.left()
+        let mut child = match node.left().value() {
+            Some(_) => node.left(),
+            None => node.right()
         };
 
         if !node.compare(&self.root) && node.parent().is_some() {
