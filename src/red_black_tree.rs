@@ -269,14 +269,14 @@ pub trait RBTreeTraits<T> {
     fn is_empty(&self) -> bool;
     fn size(&self) -> usize;
     fn search(&self, value: T) -> TreeNode<T>;
+    fn contains(&self, value: T) -> bool;
+    fn count_leaves(&self) -> usize;
     fn rotate(&mut self, node: &TreeNode<T>, direction: bool);
     fn fix_insert_color(&mut self, node: &TreeNode<T>);
     fn fix_delete_color(&mut self, node: &TreeNode<T>);
     fn insert_node(&mut self, value: T);
     fn delete_node(&mut self, value: T);
     fn print(&self);
-    fn count_leaves(&self) -> usize;
-    fn contains(&self, value: T) -> bool;
 }
 
 impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
@@ -309,6 +309,10 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
             Some(_) => true,
             None => false
         }
+    }
+
+    fn count_leaves(&self) -> usize {
+        self.root.count_leaves()
     }
 
     fn rotate(&mut self, node: &TreeNode<T>, direction: bool) {
@@ -562,9 +566,5 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
             self.root.print_traversal();
             println!();
         }
-    }
-
-    fn count_leaves(&self) -> usize {
-        self.root.count_leaves()
     }
 }

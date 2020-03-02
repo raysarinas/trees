@@ -25,6 +25,7 @@ pub trait NodeTraits<T> {
     fn print_traversal(&self);
     fn count_leaves(&self) -> usize;
     fn recalc_height(&mut self); // AVL
+    fn get_balance(&self) -> isize; // AVL
     
     // getters for node properties and family members
     fn height(&self) -> isize; // AVL
@@ -118,6 +119,14 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
         match self {
             Some(tree_node) => tree_node.borrow().height,
             None => 0
+        }
+    }
+
+    fn get_balance(&self) -> isize {
+        if self.is_none() {
+            0
+        } else {
+            self.left().height() - self.right().height()
         }
     }
 
@@ -225,30 +234,30 @@ pub struct AVLTree<T> {
     len: usize
 }
 
-pub trait AVLTreeTraits<T> {
-    fn new() -> AVLTree<T>;
-    fn height(&self) -> usize;
-    fn is_empty(&self) -> bool;
-    fn size(&self) -> usize;
-    fn search(&self, value: T) -> AVLTreeNode<T>;
-    fn get_balance(node: &AVLTreeNode<T>) -> isize;
-    fn rotate(&mut self, node: &AVLTreeNode<T>, direction: bool);
-    fn rebalance(&mut self, node: &mut AVLTreeNode<T>);
-    fn insert_node(&mut self, value: T);
-    fn delete_node(&mut self, value: T);
-    fn print(&self);
-    fn count_leaves(&self) -> usize;
-    fn contains(&self, value: T) -> bool;
-}
-
-impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
-    fn new() -> AVLTree<T> {
+impl<T> AVLTree<T> {
+    pub fn new() -> AVLTree<T> {
         AVLTree {
             root: None,
             len: 0
         }
     }
+}
 
+pub trait AVLTreeTraits<T> {
+    fn height(&self) -> usize;
+    fn is_empty(&self) -> bool;
+    fn size(&self) -> usize;
+    fn search(&self, value: T) -> AVLTreeNode<T>;
+    fn contains(&self, value: T) -> bool;
+    fn count_leaves(&self) -> usize;
+    fn rotate(&mut self, node: &AVLTreeNode<T>, direction: bool);
+    fn rebalance(&mut self, node: &mut AVLTreeNode<T>);
+    fn insert_node(&mut self, value: T);
+    fn delete_node(&mut self, value: T);
+    fn print(&self);
+}
+
+impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
     fn height(&self) -> usize {
         self.root.height() as usize
     }
@@ -265,12 +274,15 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         self.root.find_node(value)
     }
 
-    fn get_balance(node: &AVLTreeNode<T>) -> isize {
-        if node.is_none() {
-            0
-        } else {
-            node.left().height() - node.right().height()
+    fn contains(&self, value: T) -> bool {
+        match self.search(value) {
+            Some(_) => true,
+            None => false
         }
+    }
+
+    fn count_leaves(&self) -> usize {
+        self.root.count_leaves()
     }
 
     fn rotate(&mut self, node: &AVLTreeNode<T>, direction: bool) {
@@ -311,7 +323,7 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
 
     fn rebalance(&mut self, node: &mut AVLTreeNode<T>) {
         node.recalc_height();
-        let balance = Self::get_balance(node);
+        let balance = node.get_balance();
 
         // Left Cases
         if balance > 1 {
@@ -403,17 +415,17 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
     fn delete_node(&mut self, value: T) {
         let mut node = self.search(value);
 
+        if node.is_none() {
+            println!("Node does not exist!");
+            return;
+        }
+
         let mut test = node.left();
         if node.left().value().is_none() && node.right().value().is_none() {
             test = node.parent();
         }
         else if node.left().value().is_none() && node.right().value().is_some() {
             test = node.right();
-        }
-
-        if node.is_none() {
-            println!("Node does not exist!");
-            return;
         }
 
         if node.left().value().is_some() && node.right().value().is_some() {
@@ -462,17 +474,6 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
             println!("Root: {:?}", self.root.value().unwrap());
             self.root.print_traversal();
             println!();
-        }
-    }
-
-    fn count_leaves(&self) -> usize {
-        self.root.count_leaves()
-    }
-
-    fn contains(&self, value: T) -> bool {
-        match self.search(value) {
-            Some(_) => true,
-            None => false
         }
     }
 }
