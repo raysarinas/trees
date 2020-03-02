@@ -1,10 +1,12 @@
 mod avl_tree;
 mod red_black_tree;
 mod tests;
+mod tree;
 
 use red_black_tree::*;
 use avl_tree::*;
 use tests::*;
+// use tree::TreeBase;
 
 use std::io::{stdin, stdout, Write};
 
@@ -175,12 +177,12 @@ fn main() {
     //         _ => println!("Invalid input!")
     //     }
     // }
-    // it_works();
+    it_works();
     // print_test();
     // delete_cases_2_4();
     // test_delete_rbt();
     // avl_test();
     // delete_avl();
-    benchmark_redblack();
-    benchmark_avl();
+    // benchmark_redblack();
+    // benchmark_avl();
 }

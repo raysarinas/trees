@@ -1,5 +1,6 @@
 use super::*;
 use avl_tree::AVLTreeTraits;
+use crate::tree::NodeTraits;
 // #[cfg(test)]
 // TODO: write actual tests lmao
 // moved the stuff here to write the command line interface in main
@@ -51,7 +52,7 @@ pub fn benchmark_avl() {
 
 pub fn it_works() {
     // Test TreeNode
-    let treenode: red_black_tree::TreeNode<u32> = red_black_tree::TreeNode::new(5);
+    let treenode: red_black_tree::RBTreeNode<u32> = red_black_tree::RBTreeNode::new(5);
         
     println!("{:?}", treenode.value());
     println!("{:?}", treenode.color());
