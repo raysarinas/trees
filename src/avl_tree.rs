@@ -79,13 +79,10 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
         match self.value() {
             Some(_) => {
                 if value == self.value().unwrap() {
-                    // println!("inserted values are equal");
                     self.clone()
                 } else if value < self.value().unwrap() {
-                    // println!("going to LEFT");
                     self.left().find_node(value)
                 } else if value > self.value().unwrap() {
-                    // println!("trying to find in RIGHT");
                     self.right().find_node(value)
                     }
                 else {
@@ -108,10 +105,8 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
         if self.value().is_none() {
             0
         } else if self.left().value().is_none() && self.right().value().is_none() {
-            println!("leaf is = {:?} with parent = {:?}", self.value(), self.parent().value());
             1
         } else {
-            println!("PARENT = {:?} WITH NODE ON LEFT = {:?} ===== NODE ON RIGHT = {:?}", self.value(), self.left().value(), self.right().value());
             self.left().count_leaves() + self.right().count_leaves()
         }
     }
@@ -325,24 +320,17 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
 
         // Left Cases
         if balance > 1 {
-            // println!("LEFT 2 HEAVY");
             // LEFT RIGHT
             if node.left().right().height() > node.left().left().height() {
-                // println!(">>>>>>>>>>>>>>>> LEFT RIGHT CASE");
                 self.rotate(&node.left().right(), ROTATE_LEFT);
-                // node.set_left(self.rotate(&node.left(), ROTATE_LEFT));
                 self.rotate(&node.left(), ROTATE_RIGHT);
                 self.root.recalc_height();
-                // println!("LEAVES left is {:?} and right is {:?}", self.root.left().height(), self.root.right().height());
                 return
             }
             // LEFT LEFT 
             else if node.left().right().height() <= node.left().left().height() {
-                // println!(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>LEFTLEFT");
                 self.rotate(&node.left(), ROTATE_RIGHT);
                 self.root.recalc_height();
-                // println!("height is now ====== {:?}", self.root.height());
-                // println!("left is {:?} and right is {:?}", self.root.left().height(), self.root.right().height());
                 return;
             }
         }
@@ -350,29 +338,18 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         // RIGHT Cases
         if balance < -1 {
             println!("RIGHT 2 HEAVY");
-            // RIGHT LEFT RIGHT
+            // RIGHT LEFT
             if node.right().left().height() > node.right().right().height() {
-                println!(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>RIGHT LEFT");
                 self.rotate(&node.right().left(), ROTATE_RIGHT);
-                // node.set_right(self.rotate(&node.right().left(), ROTATE_RIGHT));
                 self.rotate(&node.right(), ROTATE_LEFT);
                 self.root.recalc_height();
-                // println!("height is now ====== {:?}", self.root.height());
-                // println!("left is {:?} and right is {:?}", self.root.left().height(), self.root.right().height());
-                return
+                return;
             }
             // RIGHT RIGHT
             else if node.right().left().height() <= node.right().right().height() {
-                println!("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%RIGHT RIGHT");
-                // self.rotate(&node.left(), ROTATE_RIGHT);
                 self.rotate(&node.right(), ROTATE_LEFT);
                 self.root.recalc_height();
-                // println!("height is now ====== {:?}", self.root.height());
-                // println!("left is {:?} and right is {:?}", self.root.left().height(), self.root.right().height());
                 return;
-            }
-            else {
-                println!("DIDNT GET TO ANYTHING");
             }
         }
 
@@ -398,6 +375,7 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
             let mut curr_node = self.root.clone();
             let mut curr_node_parent: AVLTreeNode<T> = None;
             let mut is_left_child = true;
+
             // find empty node
             while curr_node.value().is_some() {
                 curr_node_parent = curr_node.clone();
