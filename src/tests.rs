@@ -12,7 +12,7 @@ pub fn benchmark_redblack() {
             tree.insert_node(i);
         }
 
-        let depth = tree.get_by_depth();
+        let depth = tree.get_depth_vec();
         let time = std::time::Instant::now();
 
         for i in 0..tree_size/10 {
@@ -34,7 +34,7 @@ pub fn benchmark_avl() {
             tree.insert_node(i);
         }
 
-        let depth = tree.get_by_depth();
+        let depth = tree.get_depth_vec();
         let time = std::time::Instant::now();
         
 

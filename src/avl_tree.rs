@@ -36,8 +36,8 @@ pub trait NodeTraits<T> {
     fn grandparent(&self) -> AVLTreeNode<T>;
     fn uncle(&self) -> AVLTreeNode<T>;
     fn sibling(&self) -> AVLTreeNode<T>;
-    fn depth(&self) -> Vec<Depth<T>>;
-    fn add_depth(&self, dep: usize, vec: &mut Vec<Depth<T>>);
+    fn get_depth_vec(&self) -> Vec<Depth<T>>;
+    fn calc_depth(&self, dep: usize, vec: &mut Vec<Depth<T>>);
 
     // setters for node properties
     fn set_height(&self, value: isize); // AVL
@@ -181,22 +181,22 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
         }
     }
 
-    fn depth(&self) -> Vec<Depth<T>> {
+    fn get_depth_vec(&self) -> Vec<Depth<T>> {
         let mut deepy: Vec<Depth<T>> = Vec::new();
-        self.add_depth(0, &mut deepy);
+        self.calc_depth(0, &mut deepy);
         deepy.sort_by(|a, b| b.depth.cmp(&a.depth));
         deepy
     }
 
-    fn add_depth(&self, dep: usize, vec: &mut Vec<Depth<T>>) {
+    fn calc_depth(&self, dep: usize, vec: &mut Vec<Depth<T>>) {
         match self.value() {
             Some(_) => {
                 vec.push(Depth {
                     value: self.value(),
                     depth: dep,
                 });
-                self.left().add_depth(dep+1, vec);
-                self.right().add_depth(dep+1, vec)
+                self.left().calc_depth(dep+1, vec);
+                self.right().calc_depth(dep+1, vec)
             }
             None => {},
         }
@@ -279,7 +279,7 @@ pub trait AVLTreeTraits<T> {
     fn insert_node(&mut self, value: T);
     fn delete_node(&mut self, value: T);
     fn print(&self);
-    fn get_by_depth(&self) -> Vec<Depth<T>>;
+    fn get_depth_vec(&self) -> Vec<Depth<T>>;
 }
 
 impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
@@ -502,8 +502,8 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         }
     }
 
-    fn get_by_depth(&self) -> Vec<Depth<T>> {
-        self.root.depth()
+    fn get_depth_vec(&self) -> Vec<Depth<T>> {
+        self.root.get_depth_vec()
     }
 }
 

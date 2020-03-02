@@ -35,6 +35,8 @@ pub trait NodeTraits<T> {
     fn count_leaves(&self) -> usize;
     fn is_red(&self) -> bool;
     fn is_black(&self) -> bool;
+    fn get_depth_vec(&self) -> Vec<Depth<T>>;
+    fn calc_depth(&self, dep: usize, vec: &mut Vec<Depth<T>>);
 
     // getters for node properties and family members
     fn color(&self) -> NodeColor;
@@ -45,8 +47,6 @@ pub trait NodeTraits<T> {
     fn grandparent(&self) -> TreeNode<T>;
     fn uncle(&self) -> TreeNode<T>;
     fn sibling(&self) -> TreeNode<T>;
-    fn depth(&self) -> Vec<Depth<T>>;
-    fn add_depth(&self, dep: usize, vec: &mut Vec<Depth<T>>);
 
     // setters for node properties
     fn set_color(&self, color: NodeColor);
@@ -146,6 +146,27 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy + PartialOrd + std::fmt::Deb
         self.color() == NodeColor::Black
     }
 
+    fn get_depth_vec(&self) -> Vec<Depth<T>> {
+        let mut vec: Vec<Depth<T>> = Vec::new();
+        self.calc_depth(0, &mut vec);
+        vec.sort_by(|a, b| b.depth.cmp(&a.depth));
+        vec
+    }
+
+    fn calc_depth(&self, dep: usize, vec: &mut Vec<Depth<T>>) {
+        match self.value() {
+            Some(_) => {
+                vec.push(Depth {
+                    value: self.value(),
+                    depth: dep,
+                });
+                self.left().calc_depth(dep+1, vec);
+                self.right().calc_depth(dep+1, vec)
+            }
+            None => {},
+        }
+    }
+
     fn color(&self) -> NodeColor {
         match self {
             Some(tree_node) => tree_node.borrow().color.clone(),
@@ -199,27 +220,6 @@ impl<T> NodeTraits<T> for TreeNode<T> where T: Copy + PartialOrd + std::fmt::Deb
         match self.compare(&self.parent().left()) {
             true => self.parent().right(),
             false => self.parent().left(),
-        }
-    }
-
-    fn depth(&self) -> Vec<Depth<T>> {
-        let mut deepy: Vec<Depth<T>> = Vec::new();
-        self.add_depth(0, &mut deepy);
-        deepy.sort_by(|a, b| b.depth.cmp(&a.depth));
-        deepy
-    }
-
-    fn add_depth(&self, dep: usize, vec: &mut Vec<Depth<T>>) {
-        match self.value() {
-            Some(_) => {
-                vec.push(Depth {
-                    value: self.value(),
-                    depth: dep,
-                });
-                self.left().add_depth(dep+1, vec);
-                self.right().add_depth(dep+1, vec)
-            }
-            None => {},
         }
     }
 
@@ -300,7 +300,7 @@ pub trait RBTreeTraits<T> {
     fn insert_node(&mut self, value: T);
     fn delete_node(&mut self, value: T);
     fn print(&self);
-    fn get_by_depth(&self) -> Vec<Depth<T>>;
+    fn get_depth_vec(&self) -> Vec<Depth<T>>;
 }
 
 impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
@@ -592,8 +592,8 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         }
     }
 
-    fn get_by_depth(&self) -> Vec<Depth<T>> {
-        self.root.depth()
+    fn get_depth_vec(&self) -> Vec<Depth<T>> {
+        self.root.get_depth_vec()
     }
 }
 
