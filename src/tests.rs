@@ -1,6 +1,7 @@
 use super::*;
-use avl_tree::AVLTreeTraits;
-use crate::tree::NodeTraits;
+use avl_tree::*;
+use red_black_tree::*;
+use crate::tree::*;
 // #[cfg(test)]
 // TODO: write actual tests lmao
 // moved the stuff here to write the command line interface in main
@@ -13,7 +14,7 @@ pub fn benchmark_redblack() {
             tree.insert_node(i);
         }
 
-        let depth = tree.get_depth_vec();
+        let depth = tree.get_by_depth();
         let time = std::time::Instant::now();
 
         for i in 0..tree_size/10 {

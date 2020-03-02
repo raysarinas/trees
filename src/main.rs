@@ -6,7 +6,7 @@ mod tree;
 use red_black_tree::*;
 use avl_tree::*;
 use tests::*;
-// use tree::TreeBase;
+use crate::tree::*;
 
 use std::io::{stdin, stdout, Write};
 
@@ -180,9 +180,9 @@ fn main() {
     it_works();
     // print_test();
     // delete_cases_2_4();
-    // test_delete_rbt();
-    // avl_test();
-    // delete_avl();
+    test_delete_rbt();
+    avl_test();
+    delete_avl();
     // benchmark_redblack();
     // benchmark_avl();
 }

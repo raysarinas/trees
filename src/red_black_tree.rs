@@ -289,23 +289,23 @@ impl<T> RBTree<T> {
 } 
 
 pub trait RBTreeTraits<T> {
-    fn height(&self) -> usize;
-    fn is_empty(&self) -> bool;
-    fn size(&self) -> usize;
+    // fn height(&self) -> usize;
+    // fn is_empty(&self) -> bool;
+    // fn size(&self) -> usize;
     fn search(&self, value: T) -> RBTreeNode<T>;
-    fn contains(&self, value: T) -> bool;
-    fn count_leaves(&self) -> usize;
+    // fn contains(&self, value: T) -> bool;
+    // fn count_leaves(&self) -> usize;
     fn rotate(&mut self, node: &RBTreeNode<T>, direction: bool);
     fn fix_insert_color(&mut self, node: &RBTreeNode<T>);
     fn fix_delete_color(&mut self, node: &RBTreeNode<T>);
-    fn insert_node(&mut self, value: T);
-    fn delete_node(&mut self, value: T);
-    fn print(&self);
-    fn get_depth_vec(&self) -> Vec<Depth<T>>;
+    // fn insert_node(&mut self, value: T);
+    // fn delete_node(&mut self, value: T);
+    // fn print(&self);
+    // fn get_depth_vec(&self) -> Vec<Depth<T>>;
 }
 
-impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
-    // TODO ask miller if nil nodes are included
+impl<T> TreeBase<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
+
     fn height(&self) -> usize {
         self.root.node_height()
 
@@ -325,10 +325,6 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         self.len
     }
 
-    fn search(&self, value: T) -> RBTreeNode<T> {
-        self.root.find_node(value)
-    }
-
     fn contains(&self, value: T) -> bool {
         match self.search(value) {
             Some(_) => true,
@@ -338,6 +334,124 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
 
     fn count_leaves(&self) -> usize {
         self.root.count_leaves()
+    }
+
+    fn insert_node(&mut self, value: T) {
+        let mut new_node = RBTreeNode::new(value);
+
+        if self.is_empty() {
+            self.root = new_node.clone();
+        } else if self.search(value).is_some() {
+            // sticking with printing an err msg because panic causes the terminal to exit the program
+            println!("Value already exists!");
+            return;
+        } else {
+            let mut curr_node = self.root.clone();
+            let mut curr_node_parent: RBTreeNode<T> = None;
+            let mut is_left_child = true;
+
+            // find empty node
+            while curr_node.value().is_some() {
+                curr_node_parent = curr_node.clone();
+                if value < curr_node.value().unwrap() {
+                    curr_node = curr_node.left();
+                    is_left_child = true;
+                } else {
+                    curr_node = curr_node.right();
+                    is_left_child = false;
+                }
+            }
+            
+            // place new_node in found spot
+            if curr_node_parent.is_some() {
+                new_node.set_parent(curr_node_parent);
+                if is_left_child {
+                    new_node.parent().set_left(new_node.clone());
+                } else {
+                    new_node.parent().set_right(new_node.clone());
+                }
+            } else {
+                panic!("Current node has no parent!");
+            }
+        }
+
+        self.fix_insert_color(&new_node);
+        self.len += 1;
+    }
+
+    fn delete_node(&mut self, value: T) {
+        let mut node = self.search(value);
+
+        if node.is_none() {
+            println!("Node does not exist!");
+            return;
+        }
+
+        if node.left().value().is_some() && node.right().value().is_some() {
+            let mut larger = node.left();
+
+            while larger.right().value().is_some() { // larger.left()
+                larger = larger.right(); // larger.left()
+            }
+
+            node.set_value(larger.value().unwrap());
+            node = larger.clone();
+        }
+
+        // set node to null sibling
+        let mut child = match node.left().value() {
+            Some(_) => node.left(),
+            None => node.right()
+        };
+
+        if !node.compare(&self.root) && node.parent().is_some() {
+            child.set_parent(node.parent());
+            if node.compare(&node.parent().left()) {
+                node.parent().set_left(child.clone());
+            } else {
+                node.parent().set_right(child.clone());
+            }
+        } else if child.is_none() {
+            // empty tree if child is None
+            self.root = None;
+            self.len -= 1;
+            return;
+        } else {
+            // set root to child
+            self.root = child.clone();
+            child.set_parent(None);
+        }
+
+        if node.is_black() {
+            if child.is_red() {
+                child.set_color(NodeColor::Black);
+            } else {
+                self.fix_delete_color(&child);
+            }
+        }
+
+        self.len -= 1;
+    }
+
+    fn print(&self) {
+        if self.is_empty() {
+            println!("Tree is empty. Nothing to print.");
+        } else {
+            println!("Root: {:?}", self.root.value().unwrap());
+            self.root.print_traversal();
+            println!();
+        }
+    }
+
+    fn get_by_depth(&self) -> Vec<Depth<T>> {
+        self.root.get_depth_vec()
+    }
+}
+
+impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
+
+    fn search(&self, value: T) -> RBTreeNode<T> {
+        self.root.find_node(value)
     }
 
     fn rotate(&mut self, node: &RBTreeNode<T>, direction: bool) {
@@ -418,49 +532,6 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         grandparent.set_color(NodeColor::Red);
     }
 
-    fn insert_node(&mut self, value: T) {
-        let mut new_node = RBTreeNode::new(value);
-
-        if self.is_empty() {
-            self.root = new_node.clone();
-        } else if self.search(value).is_some() {
-            // sticking with printing an err msg because panic causes the terminal to exit the program
-            println!("Value already exists!");
-            return;
-        } else {
-            let mut curr_node = self.root.clone();
-            let mut curr_node_parent: RBTreeNode<T> = None;
-            let mut is_left_child = true;
-
-            // find empty node
-            while curr_node.value().is_some() {
-                curr_node_parent = curr_node.clone();
-                if value < curr_node.value().unwrap() {
-                    curr_node = curr_node.left();
-                    is_left_child = true;
-                } else {
-                    curr_node = curr_node.right();
-                    is_left_child = false;
-                }
-            }
-            
-            // place new_node in found spot
-            if curr_node_parent.is_some() {
-                new_node.set_parent(curr_node_parent);
-                if is_left_child {
-                    new_node.parent().set_left(new_node.clone());
-                } else {
-                    new_node.parent().set_right(new_node.clone());
-                }
-            } else {
-                panic!("Current node has no parent!");
-            }
-        }
-
-        self.fix_insert_color(&new_node);
-        self.len += 1;
-    }
-
     fn fix_delete_color(&mut self, node: &RBTreeNode<T>) {
         // CASE 1: node is root so done (it’s already black)
         if node.compare(&self.root) {
@@ -527,73 +598,5 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
             sibling.left().set_color(NodeColor::Black);
             self.rotate(&sibling, ROTATE_RIGHT);
         }
-    }
-
-    fn delete_node(&mut self, value: T) {
-        let mut node = self.search(value);
-
-        if node.is_none() {
-            println!("Node does not exist!");
-            return;
-        }
-
-        if node.left().value().is_some() && node.right().value().is_some() {
-            let mut larger = node.left();
-
-            while larger.right().value().is_some() { // larger.left()
-                larger = larger.right(); // larger.left()
-            }
-
-            node.set_value(larger.value().unwrap());
-            node = larger.clone();
-        }
-
-        // set node to null sibling
-        let mut child = match node.left().value() {
-            Some(_) => node.left(),
-            None => node.right()
-        };
-
-        if !node.compare(&self.root) && node.parent().is_some() {
-            child.set_parent(node.parent());
-            if node.compare(&node.parent().left()) {
-                node.parent().set_left(child.clone());
-            } else {
-                node.parent().set_right(child.clone());
-            }
-        } else if child.is_none() {
-            // empty tree if child is None
-            self.root = None;
-            self.len -= 1;
-            return;
-        } else {
-            // set root to child
-            self.root = child.clone();
-            child.set_parent(None);
-        }
-
-        if node.is_black() {
-            if child.is_red() {
-                child.set_color(NodeColor::Black);
-            } else {
-                self.fix_delete_color(&child);
-            }
-        }
-
-        self.len -= 1;
-    }
-
-    fn print(&self) {
-        if self.is_empty() {
-            println!("Tree is empty. Nothing to print.");
-        } else {
-            println!("Root: {:?}", self.root.value().unwrap());
-            self.root.print_traversal();
-            println!();
-        }
-    }
-
-    fn get_depth_vec(&self) -> Vec<Depth<T>> {
-        self.root.get_depth_vec()
     }
 }

@@ -1,6 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::cmp::max;
+use crate::tree::{TreeBase, NodeTraits, Depth};
 
 static ROTATE_LEFT: bool = true;
 static ROTATE_RIGHT: bool = false;
@@ -16,38 +17,90 @@ pub struct AVLNode<T> {
     height: isize,
 }
 
-pub trait NodeTraits<T> {
+pub trait AVLNodeTraits<T> {
     // helper functions
     fn new(val: T) -> AVLTreeNode<T>;
     fn unwrapped(&self) -> Rc<RefCell<AVLNode<T>>>;
     fn compare(&self, node: &AVLTreeNode<T>) -> bool;
     fn find_node(&self, value: T) -> AVLTreeNode<T>;
-    fn print_traversal(&self);
-    fn count_leaves(&self) -> usize;
-    fn recalc_height(&mut self); // AVL
-    fn get_balance(&self) -> isize; // AVL
+
+    // AVL specific helper functions
+    fn recalc_height(&mut self);
+    fn get_balance(&self) -> isize;
     
     // getters for node properties and family members
-    fn height(&self) -> isize; // AVL
-    fn value(&self) -> Option<T>;
+    
     fn parent(&self) -> AVLTreeNode<T>;
     fn left(&self) -> AVLTreeNode<T>; 
     fn right(&self) -> AVLTreeNode<T>;
     fn grandparent(&self) -> AVLTreeNode<T>;
     fn uncle(&self) -> AVLTreeNode<T>;
     fn sibling(&self) -> AVLTreeNode<T>;
-    fn get_depth_vec(&self) -> Vec<Depth<T>>;
-    fn calc_depth(&self, dep: usize, vec: &mut Vec<Depth<T>>);
+    fn height(&self) -> isize; // AVL specific node property
 
     // setters for node properties
-    fn set_height(&self, value: isize); // AVL
-    fn set_value(&self, value: T);
     fn set_parent(&mut self, parent: AVLTreeNode<T>);
     fn set_left(&mut self, left: AVLTreeNode<T>);
     fn set_right(&mut self, right: AVLTreeNode<T>);
+    fn set_height(&self, value: isize); // AVL specific node property
 }
 
+
 impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::Debug {
+    fn print_traversal(&self) {
+        if self.is_some() && self.value().is_some() {
+            self.left().print_traversal();
+            print!("{:?} ", self.value().unwrap());
+            self.right().print_traversal();
+        }
+    }
+
+    fn count_leaves(&self) -> usize {
+        if self.value().is_none() {
+            0
+        } else if self.left().value().is_none() && self.right().value().is_none() {
+            1
+        } else {
+            self.left().count_leaves() + self.right().count_leaves()
+        }
+    }
+
+    fn get_depth_vec(&self) -> Vec<Depth<T>> {
+        let mut vec: Vec<Depth<T>> = Vec::new();
+        self.calc_depth(0, &mut vec);
+        vec.sort_by(|a, b| b.depth.cmp(&a.depth));
+        vec
+    }
+
+    fn calc_depth(&self, dep: usize, vec: &mut Vec<Depth<T>>) {
+        match self.value() {
+            Some(_) => {
+                vec.push(Depth {
+                    value: self.value(),
+                    depth: dep,
+                });
+                self.left().calc_depth(dep+1, vec);
+                self.right().calc_depth(dep+1, vec)
+            }
+            None => {},
+        }
+    }
+
+    // required getters for node properties
+    fn value(&self) -> Option<T> {
+        match self {
+            Some(tree_node) => tree_node.borrow().value,
+            None => None
+        }
+    }
+
+    // setters for node properties
+    fn set_value(&self, value: T) {
+        self.unwrapped().borrow_mut().value = Some(value);
+    }
+}
+
+impl<T> AVLNodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::Debug {
     fn new(val: T) -> AVLTreeNode<T> {
         let tree_node = Some(Rc::new(RefCell::new(AVLNode {
             value: Some(val),
@@ -93,24 +146,6 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
         }
     }
 
-    fn print_traversal(&self) {
-        if self.is_some() && self.value().is_some() {
-            self.left().print_traversal();
-            print!("{:?} ", self.value().unwrap());
-            self.right().print_traversal();
-        }
-    }
-
-    fn count_leaves(&self) -> usize {
-        if self.value().is_none() {
-            0
-        } else if self.left().value().is_none() && self.right().value().is_none() {
-            1
-        } else {
-            self.left().count_leaves() + self.right().count_leaves()
-        }
-    }
-
     fn recalc_height(&mut self) {
         let left = self.left();
         let right = self.right();
@@ -129,13 +164,6 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
             0
         } else {
             self.left().height() - self.right().height()
-        }
-    }
-
-    fn value(&self) -> Option<T> {
-        match self {
-            Some(tree_node) => tree_node.borrow().value,
-            None => None
         }
     }
 
@@ -181,34 +209,8 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
         }
     }
 
-    fn get_depth_vec(&self) -> Vec<Depth<T>> {
-        let mut deepy: Vec<Depth<T>> = Vec::new();
-        self.calc_depth(0, &mut deepy);
-        deepy.sort_by(|a, b| b.depth.cmp(&a.depth));
-        deepy
-    }
-
-    fn calc_depth(&self, dep: usize, vec: &mut Vec<Depth<T>>) {
-        match self.value() {
-            Some(_) => {
-                vec.push(Depth {
-                    value: self.value(),
-                    depth: dep,
-                });
-                self.left().calc_depth(dep+1, vec);
-                self.right().calc_depth(dep+1, vec)
-            }
-            None => {},
-        }
-    }
-
-
     fn set_height(&self, value: isize) {
         self.unwrapped().borrow_mut().height = value;
-    }
-
-    fn set_value(&self, value: T) {
-        self.unwrapped().borrow_mut().value = Some(value);
     }
 
     fn set_parent(&mut self, parent: AVLTreeNode<T>) {
@@ -505,10 +507,4 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
     fn get_depth_vec(&self) -> Vec<Depth<T>> {
         self.root.get_depth_vec()
     }
-}
-
-#[derive(Debug)]
-pub struct Depth<T> {
-    pub value: Option<T>,
-    pub depth: usize,
 }
