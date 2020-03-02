@@ -420,12 +420,12 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
             return;
         }
 
-        let mut temp = node.left();
-        if node.left().value().is_none() && node.right().value().is_none() {
-            temp = node.parent();
-        }
-        else if node.left().value().is_none() && node.right().value().is_some() {
-            temp = node.right();
+        let mut unbalanced = node.left();
+        if node.left().value().is_none() {
+            unbalanced = match node.right().value() {
+                None => node.parent(),
+                Some(_) => node.right(),
+            };
         }
 
         if node.left().value().is_some() && node.right().value().is_some() {
@@ -463,7 +463,7 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
             child.set_parent(None);
         }
 
-        self.rebalance(&mut temp);
+        self.rebalance(&mut unbalanced);
         self.len -= 1;
     }
 
