@@ -84,14 +84,14 @@ fn avl() {
                     println!("Error deleting value");
                 }
             },
-            3 => println!("{}", avl.count_leaves()),
-            4 => println!("{}", avl.height()),
+            3 => println!("Number of leaves: {}", avl.count_leaves()),
+            4 => println!("Height: {}", avl.height()),
             5 => avl.print(),
             6 => {
                 if avl.is_empty() {
                     println!("Tree is empty.");
                 } else {
-                    println!("nah tree is full of leaves");
+                    println!("Nah tree is full of leaves");
                 }
             },
             7 => break,
@@ -127,14 +127,14 @@ fn rbt() {
                     println!("Error deleting value");
                 }
             },
-            3 => println!("{}", rbt.count_leaves()),
-            4 => println!("{}", rbt.height()),
+            3 => println!("Number of leaves: {}", rbt.count_leaves()),
+            4 => println!("Height: {}", rbt.height()),
             5 => rbt.print(),
             6 => {
                 if rbt.is_empty() {
                     println!("Tree is empty.");
                 } else {
-                    println!("nah tree is full of leaves");
+                    println!("Nah tree is full of leaves");
                 }
             }
             7 => break,
@@ -148,12 +148,8 @@ fn benchmark_tests() {
         println!("{}", BENCHMARK_MENU);
         let choice = get_input(">");
         match choice {
-            1 => {
-                benchmark_redblack();
-            },
-            2 => {
-                benchmark_avl();
-            },
+            1 => benchmark_redblack(),
+            2 => benchmark_avl(),
             3 => break,
             _ => println!("Invalid input!")
         }
@@ -161,26 +157,26 @@ fn benchmark_tests() {
 }
 
 fn main() {
-    // loop {
-    //     println!("{}", MAIN_MENU);
-    //     let choice = get_input(">");
-    //     match choice {
-    //         1 => rbt(),
-    //         2 => avl(),
-    //         3 => benchmark_tests(),
-    //         4 => {
-    //             println!("ok bye");
-    //             break;
-    //         },
-    //         _ => println!("Invalid input!")
-    //     }
-    // }
+    loop {
+        println!("{}", MAIN_MENU);
+        let choice = get_input(">");
+        match choice {
+            1 => rbt(),
+            2 => avl(),
+            3 => benchmark_tests(),
+            4 => {
+                println!("ok bye");
+                break;
+            },
+            _ => println!("Invalid input!")
+        }
+    }
     // it_works();
     // print_test();
     // delete_cases_2_4();
     // test_delete_rbt();
     // avl_test();
     // delete_avl();
-    benchmark_redblack();
-    benchmark_avl();
+    // benchmark_redblack();
+    // benchmark_avl();
 }
