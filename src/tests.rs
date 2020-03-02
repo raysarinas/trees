@@ -384,7 +384,6 @@ pub fn delete_cases_2_4() {
         //     println!();
         // }
  }
-
  pub fn delete_avl() {
     let mut avl: avl_tree::AVLTree<u32> = avl_tree::AVLTree::new();
     
@@ -402,14 +401,20 @@ pub fn delete_cases_2_4() {
     println!("leaves = {}", avl.count_leaves());
     avl.print();
     println!("==========================");
+    println!("deleting {} ...", 5);
+    avl.delete_node(5);
+    println!("height = {}", avl.height());
+    println!("leaves = {}", avl.count_leaves());
+    avl.print();
+    println!("==========================");
     println!("deleting {} ...", 8);
     avl.delete_node(8);
     println!("height = {}", avl.height());
     println!("leaves = {}", avl.count_leaves());
     avl.print();
     println!("==========================");
-    println!("deleting {} ...", 1);
-    avl.delete_node(1);
+    println!("deleting {} ...", 7);
+    avl.delete_node(7);
     println!("height = {}", avl.height());
     println!("leaves = {}", avl.count_leaves());
     avl.print();
@@ -425,8 +430,30 @@ pub fn delete_cases_2_4() {
     println!("height = {}", avl.height());
     println!("leaves = {}", avl.count_leaves());
     avl.print();
-
-
+    println!("==========================");
+    println!("deleting {} ...", 1);
+    avl.delete_node(1);
+    println!("height = {}", avl.height());
+    println!("leaves = {}", avl.count_leaves());
+    avl.print();
+    println!("==========================");
+    println!("deleting {} ...", 9);
+    avl.delete_node(9);
+    println!("height = {}", avl.height());
+    println!("leaves = {}", avl.count_leaves());
+    avl.print();
+    println!("==========================");
+    println!("deleting {} ...", 6);
+    avl.delete_node(6);
+    println!("height = {}", avl.height());
+    println!("leaves = {}", avl.count_leaves());
+    avl.print();
+    println!("==========================");
+    println!("deleting {} ...", 10);
+    avl.delete_node(10);
+    println!("height = {}", avl.height());
+    println!("leaves = {}", avl.count_leaves());
+    avl.print();
 
     println!();
 

@@ -468,6 +468,7 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         } else if child.is_none() {
             // empty tree if child is None
             self.root = None;
+            return;
         } else {
             // set root to child
             self.root = child.clone();
