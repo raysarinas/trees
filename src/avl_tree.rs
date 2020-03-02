@@ -429,6 +429,14 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
     fn delete_node(&mut self, value: T) {
         let mut node = self.search(value);
 
+        let mut test = node.left();
+        if node.left().value().is_none() && node.right().value().is_none() {
+            test = node.parent();
+        }
+        else if node.left().value().is_none() && node.right().value().is_some() {
+            test = node.right();
+        }
+
         if node.is_none() {
             return;
         }
@@ -466,7 +474,7 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
             child.set_parent(None);
         }
 
-        self.rebalance(&mut node);
+        self.rebalance(&mut test);
     }
 
     fn print(&self) {
