@@ -8,36 +8,48 @@ your system’s limitations will score better than letting us find them! o A use
 
 Design Rationale
 
-We designed our implementation for the different binary search trees with the goal of providing a reusable crate that could be extended to other types of binary search trees that could potentially be self-balancing. We chose to support:
+We designed our implementation of red-black trees and AVL trees with the goal of providing a reusable crates that could be used as a means of something idk. In particular, one of the major innovations of our design involved the user traits, reusable code, and encapsulating functionality associated with smart pointers and their respective operations. [need more detail here on crate stuff, and we actually need to do the crate stuff]
 
-[Description of operations here]
-- inserting
-- deleting
-- leaf counting (this is the same for both)
-- height of a tree
-- in-order print traversal
-- is empty?
+>> Talk about the traits + struct stuff and impl blocks here like using traits to extend and implement commonalities between the RBT and AVL
 
-Some of the innovations:
-- include wrapper functions - encapsulating functionality relating to handling and managing various smart pointers in Rust. Talk about accessing parent/child/sibling/etc
-- Using traits to extend and implement commonalities between the RBT and AVL
-- Could talk about how some of the binary search functionality for insertion and deletion were re-used.
+>> Talk about the different operations here
+	- inserting - start with binary search insert for both
+	- deleting - start with binary search delete for both, but with slight modification in each binary search (talk about what's a lil different in avl vs rbt)
+	- leaf counting (this is the same for both)
+	- height of a tree (same code for both)
+	- in-order print traversal (same code, only difference is indicating color)
+	- is empty? (Same code for both, just a wrapper around root.is_none())
+
+Our decision to have wrapper functions around operations that involved dealing with smart pointers was ..... Talk about encapsulating functionality with handling/managing smart pointers here because it made code easier to read, maintain, and cleaner. Helped with reducing the amount of repeated code that would have had to be written without. Also talk about how we handled borrows and reference counting stuff with the wrapper functions to access the different nodes of a tree/subtree. 
+
+
 - Talk about how we specifically chose to implement a top-down approach for insertion in both types of trees so that we could re-use code. Talk about how bottom-up approach maybe for AVL Tree insertion could improve run-time speed with regards to benchmarking.
-- Implement concept of smart pointers or something
-- something about command line interface
-- individual implementations provide different thing
-- encapsulate/put library together into a crate and explain why did that 
 
-[Explain briefly each of the implemented operations? - how they relate to one another]
+>> Talk about command line interface - why we do it the way we have it?
+- CLI only takes in numerical values - we can talk about how this decision was made for simple usage but the CLI can be extended to any type of generic value and this could include characters/strings/etc that can be partially ordered, depending on the traits said type implements.
+
 
 ANSWER FOLLOWING QUESTIONS (maybe combine them with design rationale above?): 
-What does a red-black tree provide that cannot be accomplished with ordinary binary
+- What does a red-black tree provide that cannot be accomplished with ordinary binary
 search trees?
+
+
 - Do you need to apply any kind of error handling in your system (e.g., panic macro,
 Option<T>, Result<T, E>, etc..)
+
+Unless somehow erroneous data is injected into the system, for the most part error handling is not necessarily required. Incorrect or erroneous data that is normally inputted to the system will typically be rejected and would not be allowed to be used in the system, particularly when performing operations on either tree, attempts to insert erroneous data simply will not be handled and will just be rejected/prompt user to attempt to correct themselves. 
+
 - What components do the Red-black tree and AVL tree have in common? Don’t Repeat
 Yourself! Never, ever repeat yourself – a fundamental idea in programming.
+
+Many of the required components to have had been implemented were identical. The main difference between red-black tree nodes and AVL tree nodes are one field unique to either one. For red-black tree, the color of each node is kept track of, while in AVL, each node keeps track of its height with respect to its depth/distance from the root node. Other than this, both nodes maintain values, and said node's parent and left and right children. Additionally, many of operations that were implemented were simply reused for both tree types. Particularly, counting the number of leaves in a tree, checking if a tree was empty and in-order traversal were essentially identical operations. And although the insert and delete operations for both trees did differ, both implementations required a typical binary search insert and delete respectively, with only a slight modification to either tree at the end which has to do with how both trees self-balance (in red-black tree's case, the color is fixed at the end of inserting/deleting, while for AVL tree, the height of each node is recursively checked to ensure a maintained balance). 
+
 - How do we construct our design to “allow it to be efficiently and effectively extended”? For example. Could your code be reused to build a 2-3-4 tree or B tree?
+
+We can construct our design by having the code implement functionality and/or fields that are common between various types of search trees. In the case of binary search trees, the code could be constructed and designed in such a way that the typical binary search insertion and deletion operations are generic and could be extendable such that if there a property/field in a certain type of tree that is to be maintained, that at these operations could still be called/re-used and maintaining whatever said property that is could simply be done after calling the respective binary search operation. This could also be said for the other operations binary search trees have in common (i.e. counting leaves, checking if the tree is empty, and printing via in-order traversal). 
+
+- 2-3-4 trees are essentially an alternate form of red-black trees (i.e. that is, they are equivalent data structures and there is at least 1 analogous red-black tree for every 2-3-4 tree implementation). That being said, it could be possible that our red-black tree code could very much so be re-used to implement a 2-3-4 tree though this could prove to be much more difficult (read more on wikipedia page later lol)
+- B trees are unlikely to be able to use our code. Since B trees are a generalized binary search trees in that something about there being allowed to have >2 child nodes. 
 
 PART 3
 
@@ -59,6 +71,12 @@ Elapsed time for 40000: 31 ms
 Elapsed time for 70000: 58 ms
 Elapsed time for 100000: 88 ms
 Elapsed time for 130000: 114 ms
+==
+Elapsed time for 10000: 6 ms
+Elapsed time for 40000: 30 ms
+Elapsed time for 70000: 57 ms
+Elapsed time for 100000: 87 ms
+Elapsed time for 130000: 113 ms
 
 AVL TREE BENCHMARK RESULTS:
 Elapsed time for 10000: 8 ms
@@ -78,6 +96,12 @@ Elapsed time for 40000: 34 ms
 Elapsed time for 70000: 64 ms
 Elapsed time for 100000: 98 ms
 Elapsed time for 130000: 130 ms
+==
+Elapsed time for 10000: 7 ms
+Elapsed time for 40000: 34 ms
+Elapsed time for 70000: 64 ms
+Elapsed time for 100000: 98 ms
+Elapsed time for 130000: 129 ms
 
 - AVL is probably going to be more efficient because of height rebalancing factor. 
 - AVL apparently not as efficient (likely to due top-bottom implementation)
