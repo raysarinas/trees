@@ -12,10 +12,11 @@ pub fn benchmark_redblack() {
             tree.insert_node(i);
         }
 
+        let depth = tree.get_by_depth();
         let time = std::time::Instant::now();
 
         for i in 0..tree_size/10 {
-            match tree.contains(i) {
+            match tree.contains(depth[i as usize].value.unwrap()) {
                 true => { continue; },
                 false => println!("nope"),
             }
@@ -33,10 +34,12 @@ pub fn benchmark_avl() {
             tree.insert_node(i);
         }
 
+        let depth = tree.get_by_depth();
         let time = std::time::Instant::now();
+        
 
         for i in 0..tree_size/10 {
-            match tree.contains(i) {
+            match tree.contains(depth[i as usize].value.unwrap()) {
                 true => { continue; },
                 false => println!("nope"),
             }

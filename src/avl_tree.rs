@@ -36,6 +36,8 @@ pub trait NodeTraits<T> {
     fn grandparent(&self) -> AVLTreeNode<T>;
     fn uncle(&self) -> AVLTreeNode<T>;
     fn sibling(&self) -> AVLTreeNode<T>;
+    fn depth(&self) -> Vec<Depth<T>>;
+    fn add_depth(&self, dep: usize, vec: &mut Vec<Depth<T>>);
 
     // setters for node properties
     fn set_height(&self, value: isize); // AVL
@@ -179,6 +181,28 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
         }
     }
 
+    fn depth(&self) -> Vec<Depth<T>> {
+        let mut deepy: Vec<Depth<T>> = Vec::new();
+        self.add_depth(0, &mut deepy);
+        deepy.sort_by(|a, b| b.depth.cmp(&a.depth));
+        deepy
+    }
+
+    fn add_depth(&self, dep: usize, vec: &mut Vec<Depth<T>>) {
+        match self.value() {
+            Some(_) => {
+                vec.push(Depth {
+                    value: self.value(),
+                    depth: dep,
+                });
+                self.left().add_depth(dep+1, vec);
+                self.right().add_depth(dep+1, vec)
+            }
+            None => {},
+        }
+    }
+
+
     fn set_height(&self, value: isize) {
         self.unwrapped().borrow_mut().height = value;
     }
@@ -255,6 +279,7 @@ pub trait AVLTreeTraits<T> {
     fn insert_node(&mut self, value: T);
     fn delete_node(&mut self, value: T);
     fn print(&self);
+    fn get_by_depth(&self) -> Vec<Depth<T>>;
 }
 
 impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
@@ -476,4 +501,14 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
             println!();
         }
     }
+
+    fn get_by_depth(&self) -> Vec<Depth<T>> {
+        self.root.depth()
+    }
+}
+
+#[derive(Debug)]
+pub struct Depth<T> {
+    pub value: Option<T>,
+    pub depth: usize,
 }

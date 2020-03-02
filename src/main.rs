@@ -180,5 +180,7 @@ fn main() {
     // delete_cases_2_4();
     // test_delete_rbt();
     // avl_test();
-    delete_avl();
+    // delete_avl();
+    benchmark_redblack();
+    benchmark_avl();
 }
