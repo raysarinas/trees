@@ -5,7 +5,6 @@ use std::cmp::max;
 static ROTATE_LEFT: bool = true;
 static ROTATE_RIGHT: bool = false;
 
-
 pub type AVLTreeNode<T> = Option<Rc<RefCell<AVLNode<T>>>>;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -43,8 +42,6 @@ pub trait NodeTraits<T> {
     fn set_parent(&mut self, parent: AVLTreeNode<T>);
     fn set_left(&mut self, left: AVLTreeNode<T>);
     fn set_right(&mut self, right: AVLTreeNode<T>);
-    
-    
 }
 
 impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::Debug {
@@ -219,13 +216,13 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
             })))
         }
     }
-
 }
 
 /******************** AVL Tree Helpers ********************/
 #[derive(Clone, Debug, PartialEq)]
 pub struct AVLTree<T> {
     root: AVLTreeNode<T>,
+    len: usize
 }
 
 pub trait AVLTreeTraits<T> {
@@ -248,6 +245,7 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
     fn new() -> AVLTree<T> {
         AVLTree {
             root: None,
+            len: 0
         }
     }
 
@@ -259,9 +257,8 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         self.root.is_none()
     }
 
-    // DO WE NEED SIZE?
     fn size(&self) -> usize {
-        1
+        self.len
     }
 
     fn search(&self, value: T) -> AVLTreeNode<T> {
@@ -277,7 +274,6 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
     }
 
     fn rotate(&mut self, node: &AVLTreeNode<T>, direction: bool) {
-        
         let mut parent = node.parent().clone();
         let mut grandparent = node.grandparent().clone();
         let mut node = node.clone();
@@ -313,7 +309,6 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         node.recalc_height();
     }
 
-    // TODO
     fn rebalance(&mut self, node: &mut AVLTreeNode<T>) {
         node.recalc_height();
         let balance = Self::get_balance(node);
@@ -337,7 +332,6 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
 
         // RIGHT Cases
         if balance < -1 {
-            println!("RIGHT 2 HEAVY");
             // RIGHT LEFT
             if node.right().left().height() > node.right().right().height() {
                 self.rotate(&node.right().left(), ROTATE_RIGHT);
@@ -364,6 +358,7 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
 
         if self.is_empty() {
             self.root = new_node.clone();
+            self.len += 1;
             return
         }   
 
@@ -402,6 +397,7 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         }
 
         self.rebalance(&mut new_node);
+        self.len += 1;
     }
 
     fn delete_node(&mut self, value: T) {
@@ -416,6 +412,7 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         }
 
         if node.is_none() {
+            println!("Node does not exist!");
             return;
         }
 
@@ -446,6 +443,7 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         } else if child.is_none() {
             // empty tree if child is None
             self.root = None;
+            self.len -= 1;
             return;
         } else {
             // set root to child
@@ -454,6 +452,7 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         }
 
         self.rebalance(&mut test);
+        self.len -= 1;
     }
 
     fn print(&self) {
