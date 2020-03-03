@@ -151,9 +151,13 @@ fn benchmark_tests() {
         let choice = get_input(">");
         match choice {
             1 => {
-                benchmark_redblack();
+                // let mut tree: red_black_tree::RBTree<u32> = red_black_tree::RBTree::new();
+                // benchmark_insert_search(tree);
+                benchmark_rbt();
             },
             2 => {
+                // let mut tree: avl_tree::AVLTree<u32> = avl_tree::AVLTree::new();
+                // benchmark_insert_search(tree);
                 benchmark_avl();
             },
             3 => break,
@@ -163,26 +167,26 @@ fn benchmark_tests() {
 }
 
 fn main() {
-    // loop {
-    //     println!("{}", MAIN_MENU);
-    //     let choice = get_input(">");
-    //     match choice {
-    //         1 => rbt(),
-    //         2 => avl(),
-    //         3 => benchmark_tests(),
-    //         4 => {
-    //             println!("ok bye");
-    //             break;
-    //         },
-    //         _ => println!("Invalid input!")
-    //     }
-    // }
-    it_works();
+    loop {
+        println!("{}", MAIN_MENU);
+        let choice = get_input(">");
+        match choice {
+            1 => rbt(),
+            2 => avl(),
+            3 => benchmark_tests(),
+            4 => {
+                println!("ok bye");
+                break;
+            },
+            _ => println!("Invalid input!")
+        }
+    }
+    // it_works();
     // print_test();
     // delete_cases_2_4();
-    test_delete_rbt();
-    avl_test();
-    delete_avl();
+    // test_delete_rbt();
+    // avl_test();
+    // delete_avl();
     // benchmark_redblack();
     // benchmark_avl();
 }

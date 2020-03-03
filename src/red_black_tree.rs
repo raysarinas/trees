@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 use std::rc::Rc;
-use crate::tree::{TreeBase, NodeTraits, Depth};
+use crate::tree::{TreeBase, NodeTraits};
 
 static ROTATE_LEFT: bool = true;
 static ROTATE_RIGHT: bool = false;
@@ -79,22 +79,23 @@ impl<T> NodeTraits<T> for RBTreeNode<T> where T: Copy + PartialOrd + std::fmt::D
         }
     }
 
-    fn get_depth_vec(&self) -> Vec<Depth<T>> {
-        let mut vec: Vec<Depth<T>> = Vec::new();
+    fn get_depth_vec(&self) -> Vec<(T, usize)> {
+        let mut vec: Vec<(T, usize)> = Vec::new();
         self.calc_depth(0, &mut vec);
-        vec.sort_by(|a, b| b.depth.cmp(&a.depth));
+        vec.sort_by(|a, b| b.1.cmp(&a.1));
         vec
     }
 
-    fn calc_depth(&self, dep: usize, vec: &mut Vec<Depth<T>>) {
+    fn calc_depth(&self, depth: usize, vec: &mut Vec<(T, usize)>) {
         match self.value() {
             Some(_) => {
-                vec.push(Depth {
-                    value: self.value(),
-                    depth: dep,
-                });
-                self.left().calc_depth(dep+1, vec);
-                self.right().calc_depth(dep+1, vec)
+                let value_in = self.value().unwrap();
+                if !vec.iter().any(|x| x.0 == value_in) {
+                    vec.push((self.value().unwrap(), depth));
+                }
+
+                self.left().calc_depth(depth+1, vec);
+                self.right().calc_depth(depth+1, vec)
             }
             None => {},
         }
@@ -459,7 +460,7 @@ impl<T> TreeBase<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
     }
 
     // return all the values in a red-black tree by depth
-    fn get_by_depth(&self) -> Vec<Depth<T>> {
+    fn get_by_depth(&self) -> Vec<(T, usize)> {
         self.root.get_depth_vec()
     }
 }

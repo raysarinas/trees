@@ -1,15 +1,11 @@
-#[derive(Debug)]
-pub struct Depth<T> {
-    pub value: Option<T>,
-    pub depth: usize,
-}
-
 pub trait NodeTraits<T> {
     // required/default helper functions
     fn print_traversal(&self);
     fn count_leaves(&self) -> usize;
-    fn get_depth_vec(&self) -> Vec<Depth<T>>;
-    fn calc_depth(&self, dep: usize, vec: &mut Vec<Depth<T>>);
+    fn get_depth_vec(&self) -> Vec<(T, usize)>;
+    fn calc_depth(&self, dep: usize, vec: &mut Vec<(T, usize)>);
+    // fn calc_depth(&self, dep: usize, map: &mut HashMap<T, usize>);
+    // fn get_depth_map(&self) -> HashMap<T, usize>;
 
     // required getters for node properties
     fn value(&self) -> Option<T>;
@@ -27,6 +23,6 @@ pub trait TreeBase<T> {
     fn insert_node(&mut self, value: T);
     fn delete_node(&mut self, value: T);
     fn print(&self);
-    fn get_by_depth(&self) -> Vec<Depth<T>>;
+    fn get_by_depth(&self) -> Vec<(T, usize)>;
 }
 

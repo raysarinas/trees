@@ -5,8 +5,35 @@ use crate::tree::*;
 // #[cfg(test)]
 // TODO: write actual tests lmao
 // moved the stuff here to write the command line interface in main
-// #[test]
-pub fn benchmark_redblack() {
+// // #[test]
+// pub fn benchmark_insert_search(mut in_tree: impl TreeBase<u32>) {
+//     // let intree = in_tree;
+//     let mut benchmarks = vec![10_000, 40_000, 70_000, 100_000, 130_000];
+
+//     for tree_size in vec![10_000, 40_000, 70_000, 100_000, 130_000] {
+//         let mut tree = in_tree.clone(); // CANT CLONE NEED TO BORROW TREE SOMEHOW WITHOUT IMPL COPY?
+
+//         for i in 0..tree_size {
+//             tree.insert_node(i);
+//         }
+
+//         tree.print();
+//         let depth = tree.get_by_depth();
+//         let time = std::time::Instant::now();
+
+//         for i in 0..tree_size/10 {
+//             match tree.contains(depth[i as usize].0) {
+//                 true => { continue; },
+//                 false => println!("nope"),
+//             }
+//         }
+
+//         println!("Elapsed time for {}: {} ms", tree_size, time.elapsed().as_millis());
+
+//     }
+// }
+
+pub fn benchmark_rbt() {
     for tree_size in vec![10_000, 40_000, 70_000, 100_000, 130_000] {
         let mut tree: red_black_tree::RBTree<u32> = red_black_tree::RBTree::new();
 
@@ -18,7 +45,7 @@ pub fn benchmark_redblack() {
         let time = std::time::Instant::now();
 
         for i in 0..tree_size/10 {
-            match tree.contains(depth[i as usize].value.unwrap()) {
+            match tree.contains(depth[i as usize].0) {
                 true => { continue; },
                 false => println!("nope"),
             }
@@ -38,10 +65,9 @@ pub fn benchmark_avl() {
 
         let depth = tree.get_by_depth();
         let time = std::time::Instant::now();
-        
 
         for i in 0..tree_size/10 {
-            match tree.contains(depth[i as usize].value.unwrap()) {
+            match tree.contains(depth[i as usize].0) {
                 true => { continue; },
                 false => println!("nope"),
             }
