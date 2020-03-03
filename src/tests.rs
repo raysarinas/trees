@@ -73,21 +73,6 @@ pub fn test_treenode() {
 }
 
 #[test]
-fn test_count_leaves_rbt() {
-
-}
-
-#[test]
-fn test_height_rbt() {
-
-}
-
-#[test]
-fn test_size_rbt() {
-
-}
-
-#[test]
 pub fn test_insert_rbt_all_cases() {
     let mut rbt: red_black_tree::RBTree<u32> = red_black_tree::RBTree::new();
 
@@ -96,6 +81,9 @@ pub fn test_insert_rbt_all_cases() {
         rbt.insert_node(x);
     }
 
+    assert_eq!(rbt.height(), 4);
+    assert_eq!(rbt.size(), 10);
+    assert_eq!(rbt.count_leaves(), 5);
     println!("\n==== Start Testing DELETE RBTree Here ====\n");
     let mut rbt2: red_black_tree::RBTree<u32> = red_black_tree::RBTree::new();
     let mut vec_in = vec![30, 20, 40, 10, 50];
@@ -109,6 +97,10 @@ pub fn test_insert_rbt_all_cases() {
         println!();
     }
 
+    assert_eq!(rbt2.height(), 3);
+    assert_eq!(rbt2.size(), 5);
+    assert_eq!(rbt2.count_leaves(), 2);
+
     vec_in = vec![10, 20, 30];
     for &x in vec_in.iter() {
         println!("Deleting {} ...", x);
@@ -119,6 +111,10 @@ pub fn test_insert_rbt_all_cases() {
         println!("num leaves = {}", rbt2.count_leaves());
         println!(); 
     }
+
+    assert_eq!(rbt2.height(), 2);
+    assert_eq!(rbt2.size(), 2);
+    assert_eq!(rbt2.count_leaves(), 1);
 }
 
 #[test]
@@ -131,6 +127,10 @@ fn test_rbt_search_contains() {
         assert!(rbt.search(x).is_some());
         assert!(rbt.contains(x));
     }
+
+    assert_eq!(rbt.height(), 5);
+    assert_eq!(rbt.size(), 10);
+    assert_eq!(rbt.count_leaves(), 5);
 
     assert!(rbt.search(10).is_none());
     assert!(!rbt.contains(10));
@@ -148,6 +148,9 @@ fn test_delete_rbt_all() {
     }
 
     assert!(rbt.is_empty() == false);
+    assert_eq!(rbt.height(), 5);
+    assert_eq!(rbt.size(), 10);
+    assert_eq!(rbt.count_leaves(), 5);
     rbt.print();
 
     let vec_in = vec![6, 4, 2, 8, 9, 7, 3, 1, 5, 10];
@@ -157,6 +160,9 @@ fn test_delete_rbt_all() {
     }
 
     assert!(rbt.is_empty() == true);
+    assert_eq!(rbt.height(), 0);
+    assert_eq!(rbt.size(), 0);
+    assert_eq!(rbt.count_leaves(), 0);
 }
 
 #[test]
@@ -169,6 +175,9 @@ pub fn test_delete_rbt_cases_1_3_5_6() {
         assert!(rbt.contains(x));
     }
     assert!(!rbt.is_empty());
+    assert_eq!(rbt.height(), 5);
+    assert_eq!(rbt.size(), 10);
+    assert_eq!(rbt.count_leaves(), 5);
 
     let vec_in: Vec<u32> = vec![4, 6, 8, 1, 5, 9, 2];
     for &x in vec_in.iter() {
@@ -176,6 +185,9 @@ pub fn test_delete_rbt_cases_1_3_5_6() {
         assert!(!rbt.contains(x));
     }
     assert!(!rbt.is_empty());
+    assert_eq!(rbt.height(), 2);
+    assert_eq!(rbt.size(), 3);
+    assert_eq!(rbt.count_leaves(), 2);
 }
 
 #[test]
@@ -190,6 +202,9 @@ pub fn test_delete_rbt_cases_2_4() {
         assert!(rbt.contains(x));
     }
     assert!(!rbt.is_empty());
+    assert_eq!(rbt.height(), 4);
+    assert_eq!(rbt.size(), 10);
+    assert_eq!(rbt.count_leaves(), 5);
 
     let to_delete = vec![17, 84, 99, 5, 1, 60];
     for &x in to_delete.iter() {
@@ -197,6 +212,9 @@ pub fn test_delete_rbt_cases_2_4() {
         assert!(!rbt.contains(x));
     }
     assert!(!rbt.is_empty());
+    assert_eq!(rbt.height(), 3);
+    assert_eq!(rbt.size(), 4);
+    assert_eq!(rbt.count_leaves(), 2);
 }
 
 #[test]
@@ -214,7 +232,11 @@ pub fn avl_test() {
         println!("leaves = {}", avl.count_leaves());
         println!();
     }
-
+    
+    assert_eq!(avl.height(), 4);
+    assert_eq!(avl.size(), 10);
+    assert_eq!(avl.count_leaves(), 5);
+    
     vec_in = vec![17, 84, 99, 5, 1, 60];
     for &x in vec_in.iter() {
         println!("deleting {} ...", x);
@@ -225,6 +247,10 @@ pub fn avl_test() {
         println!("leaves = {}", avl.count_leaves());
         println!();
     }
+
+    assert_eq!(avl.height(), 3);
+    assert_eq!(avl.size(), 4);
+    assert_eq!(avl.count_leaves(), 2);
 }
 
 #[test]
@@ -240,6 +266,10 @@ pub fn delete_avl() {
     println!("leaves = {}", avl.count_leaves());
     println!("==========================");
 
+    assert_eq!(avl.height(), 4);
+    assert_eq!(avl.size(), 10);
+    assert_eq!(avl.count_leaves(), 5);
+
     let vec_in = vec![4, 5, 8, 7, 3, 2, 1, 9, 6, 10];
     for &x in vec_in.iter() {
         println!("deleting {} ...", x);
@@ -249,5 +279,9 @@ pub fn delete_avl() {
         avl.print();
         println!("==========================");
     }
+
+    assert_eq!(avl.height(), 0);
+    assert_eq!(avl.size(), 0);
+    assert_eq!(avl.count_leaves(), 0);
     println!();
 }
