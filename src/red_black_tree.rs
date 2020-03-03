@@ -79,20 +79,23 @@ impl<T> NodeTraits<T> for RBTreeNode<T> where T: Copy + PartialOrd + std::fmt::D
         }
     }
 
+    // retrieve a vector containing each node in a tree with respective depth
     fn get_depth_vec(&self) -> Vec<(T, usize)> {
         let mut vec: Vec<(T, usize)> = Vec::new();
         self.calc_depth(0, &mut vec);
-        vec.sort_by(|a, b| b.1.cmp(&a.1));
+        vec.sort_by(|a, b| b.1.cmp(&a.1)); // sort by depth
+        vec.dedup_by(|a, b| a.0 == b.0); // remove duplicate nodes
         vec
     }
 
+    // calculate the depth of each node and store them in a given vector
     fn calc_depth(&self, depth: usize, vec: &mut Vec<(T, usize)>) {
         match self.value() {
             Some(_) => {
-                let value_in = self.value().unwrap();
-                if !vec.iter().any(|x| x.0 == value_in) {
-                    vec.push((self.value().unwrap(), depth));
-                }
+                // let value_in = self.value().unwrap();
+                // if !vec.iter().any(|x| x.0 == value_in) {
+                vec.push((self.value().unwrap(), depth));
+                // }
 
                 self.left().calc_depth(depth+1, vec);
                 self.right().calc_depth(depth+1, vec)
