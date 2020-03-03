@@ -68,34 +68,22 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
         }
     }
 
-    // fn get_depth_map(&self) -> HashMap<T, usize> {
-    //     let mut map: HashMap<usize, T> = HashMap::new();
-    //     // self.calc_depth(0, &mut map);
-    //     map
-    // }
-
+    // retrieve a vector containing each node in a tree with respective depth
     fn get_depth_vec(&self) -> Vec<(T, usize)> {
         let mut vec: Vec<(T, usize)> = Vec::new();
         self.calc_depth(0, &mut vec);
-        // vec.sort_by(|a, b| b.depth.cmp(&a.depth));
+        vec.sort_by(|a, b| b.1.cmp(&a.1)); // sort by depth
+        vec.dedup_by(|a, b| a.0 == b.0); // remove duplicate nodes
         vec
     }
 
+    // calculate the depth of each node and store them in a given vector
     fn calc_depth(&self, depth: usize, vec: &mut Vec<(T, usize)>) {
-        // match self.value() {
-        //     Some(_) => {
-        //         map.insert(depth, self.value().unwrap());
-        //         self.left().calc_depth(depth + 1, map);
-        //         self.right().calc_depth(depth + 1, map);
-        //     },
-        //     None => { },
-        // }
         match self.value() {
             Some(_) => {
                 vec.push((self.value().unwrap(), depth));
-
                 self.left().calc_depth(depth+1, vec);
-                self.right().calc_depth(depth+1, vec);
+                self.right().calc_depth(depth+1, vec)
             }
             None => {},
         }

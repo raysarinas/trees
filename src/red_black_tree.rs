@@ -92,11 +92,7 @@ impl<T> NodeTraits<T> for RBTreeNode<T> where T: Copy + PartialOrd + std::fmt::D
     fn calc_depth(&self, depth: usize, vec: &mut Vec<(T, usize)>) {
         match self.value() {
             Some(_) => {
-                // let value_in = self.value().unwrap();
-                // if !vec.iter().any(|x| x.0 == value_in) {
                 vec.push((self.value().unwrap(), depth));
-                // }
-
                 self.left().calc_depth(depth+1, vec);
                 self.right().calc_depth(depth+1, vec)
             }
