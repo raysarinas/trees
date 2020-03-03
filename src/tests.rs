@@ -11,9 +11,6 @@ pub fn benchmark_insert_search(in_tree: impl TreeBase<u32>, tree_size: u32) {
             tree.insert_node(i);
         }
 
-        // tree.print();
-        // let depth = tree.get_by_depth();
-
         for i in 0..tree_size/10 {
             match tree.contains(i) {
                 true => { continue; },
@@ -21,7 +18,44 @@ pub fn benchmark_insert_search(in_tree: impl TreeBase<u32>, tree_size: u32) {
             }
         }
 
-        println!("Elapsed time for {}: {} ms", tree_size, time.elapsed().as_millis());
+        println!("Elapsed time for tree size of {}: {} ms", tree_size, time.elapsed().as_millis());
+}
+
+#[allow(dead_code)]
+pub fn insert_search_deepest(in_tree: impl TreeBase<u32>, tree_size: u32) {
+
+    let mut tree = in_tree;
+
+    let time = std::time::Instant::now();
+    for i in 0..tree_size {
+        tree.insert_node(i);
+    }
+    
+    let depth = tree.get_depth_vec();
+
+    for i in 0..tree_size/10 {
+        match tree.contains(depth[i as usize].0) {
+            true => { continue; },
+            false => println!("nope"),
+        }
+    }
+
+    println!("Elapsed time for tree size of {}: {} ms", tree_size, time.elapsed().as_millis());
+}
+
+
+#[test]
+pub fn benchmark_insert_search_deepest_nodes() {
+
+    for tree_size in vec![10_000, 40_000, 70_000, 100_000, 130_000] {
+        let tree: red_black_tree::RBTree<u32> = red_black_tree::RBTree::new();
+        insert_search_deepest(tree, tree_size);
+    }
+
+    for tree_size in vec![10_000, 40_000, 70_000, 100_000, 130_000] {
+        let tree: avl_tree::AVLTree<u32> = avl_tree::AVLTree::new();
+        insert_search_deepest(tree, tree_size);
+    }
 }
 
 #[test]
