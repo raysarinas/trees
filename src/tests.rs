@@ -36,7 +36,7 @@ pub fn benchmark_avl() {
             tree.insert_node(i);
         }
 
-        let depth = tree.get_depth_vec();
+        let depth = tree.get_by_depth();
         let time = std::time::Instant::now();
         
 

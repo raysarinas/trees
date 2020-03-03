@@ -47,6 +47,8 @@ pub trait AVLNodeTraits<T> {
 
 
 impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::Debug {
+
+    // print in-order traversal of tree
     fn print_traversal(&self) {
         if self.is_some() && self.value().is_some() {
             self.left().print_traversal();
@@ -55,6 +57,7 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
         }
     }
 
+    // count number of leaves in a tree
     fn count_leaves(&self) -> usize {
         if self.value().is_none() {
             0
@@ -101,6 +104,8 @@ impl<T> NodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::
 }
 
 impl<T> AVLNodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fmt::Debug {
+
+    // return new instance of an AVL tree node
     fn new(val: T) -> AVLTreeNode<T> {
         let tree_node = Some(Rc::new(RefCell::new(AVLNode {
             value: Some(val),
@@ -111,9 +116,11 @@ impl<T> AVLNodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fm
         })));
         tree_node.left().set_parent(tree_node.clone());
         tree_node.right().set_parent(tree_node.clone());
+
         tree_node
     }
 
+    // return unwrapped tree node (reference counter)
     fn unwrapped(&self) -> Rc<RefCell<AVLNode<T>>> {
         match self {
             Some(tree_node) => Rc::clone(&tree_node),
@@ -121,6 +128,7 @@ impl<T> AVLNodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fm
         }
     }
 
+    // compare if two nodes are the same or not
     fn compare(&self, node: &AVLTreeNode<T>) -> bool {
         if self.is_none() || node.is_none() {
             return false
@@ -128,6 +136,7 @@ impl<T> AVLNodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fm
         Rc::ptr_eq(&self.unwrapped(), &node.unwrapped())
     }
 
+    // search for a node with given value
     fn find_node(&self, value: T) -> AVLTreeNode<T> {
         match self.value() {
             Some(_) => {
@@ -146,19 +155,14 @@ impl<T> AVLNodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fm
         }
     }
 
+    // relcalculate the height of a node
     fn recalc_height(&mut self) {
         let left = self.left();
         let right = self.right();
         self.set_height(1 + max(left.height(), right.height()));
     }
 
-    fn height(&self) -> isize {
-        match self {
-            Some(tree_node) => tree_node.borrow().height,
-            None => 0
-        }
-    }
-
+    // calculate the balance of a node with respect to its height
     fn get_balance(&self) -> isize {
         if self.is_none() {
             0
@@ -167,6 +171,7 @@ impl<T> AVLNodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fm
         }
     }
 
+    // return the parent of a node
     fn parent(&self) -> AVLTreeNode<T> {
         match self {
             Some(tree_node) => tree_node.borrow().parent.clone(),
@@ -174,6 +179,7 @@ impl<T> AVLNodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fm
         }
     }
 
+    // return the left child of a node
     fn left(&self) -> AVLTreeNode<T> {
         match self {
             Some(tree_node) => tree_node.borrow().left.clone(),
@@ -181,6 +187,7 @@ impl<T> AVLNodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fm
         }
     }
 
+    // return the right child of a node
     fn right(&self) -> AVLTreeNode<T> {
         match self {
             Some(tree_node) => tree_node.borrow().right.clone(),
@@ -188,10 +195,12 @@ impl<T> AVLNodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fm
         }
     }
 
+    // return the parent of a node's parent
     fn grandparent(&self) -> AVLTreeNode<T> {
         self.parent().parent()
     }
 
+    // return a parent node's sibling
     fn uncle(&self) -> AVLTreeNode<T> {
         if self.grandparent().left().is_none() || self.grandparent().right().is_none() {
             None
@@ -202,6 +211,7 @@ impl<T> AVLNodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fm
         }
     }
 
+    // return a node's sibling
     fn sibling(&self) -> AVLTreeNode<T> {
         match self.compare(&self.parent().left()) {
             true => self.parent().right(),
@@ -209,10 +219,20 @@ impl<T> AVLNodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fm
         }
     }
 
+    // return the height of a node
+    fn height(&self) -> isize {
+        match self {
+            Some(tree_node) => tree_node.borrow().height,
+            None => 0
+        }
+    }
+
+    // set the height of a node
     fn set_height(&self, value: isize) {
         self.unwrapped().borrow_mut().height = value;
     }
 
+    // set the parent of a node
     fn set_parent(&mut self, parent: AVLTreeNode<T>) {
         match self {
             Some(tree_node) => tree_node.borrow_mut().parent = parent,
@@ -226,6 +246,7 @@ impl<T> AVLNodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fm
         }
     }
 
+    // set the left child of a node
     fn set_left(&mut self, left: AVLTreeNode<T>) {
         match self {
             Some(tree_node) => tree_node.borrow_mut().left = left,
@@ -239,6 +260,7 @@ impl<T> AVLNodeTraits<T> for AVLTreeNode<T> where T: Copy + PartialOrd + std::fm
         }
     }
 
+    // set the right child of a node
     fn set_right(&mut self, right: AVLTreeNode<T>) {
         match self {
             Some(tree_node) => tree_node.borrow_mut().right = right,
@@ -270,37 +292,30 @@ impl<T> AVLTree<T> {
 }
 
 pub trait AVLTreeTraits<T> {
-    fn height(&self) -> usize;
-    fn is_empty(&self) -> bool;
-    fn size(&self) -> usize;
+    // methods required to be implemented for a fully functional AVL tree
     fn search(&self, value: T) -> AVLTreeNode<T>;
-    fn contains(&self, value: T) -> bool;
-    fn count_leaves(&self) -> usize;
     fn rotate(&mut self, node: &AVLTreeNode<T>, direction: bool);
     fn rebalance(&mut self, node: &mut AVLTreeNode<T>);
-    fn insert_node(&mut self, value: T);
-    fn delete_node(&mut self, value: T);
-    fn print(&self);
-    fn get_depth_vec(&self) -> Vec<Depth<T>>;
 }
 
-impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
+impl<T> TreeBase<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
+
+    // get the height of a tree
     fn height(&self) -> usize {
         self.root.height() as usize
     }
 
+    // check if a tree is empty
     fn is_empty(&self) -> bool {
         self.root.is_none()
     }
 
+    // get the size of a tree
     fn size(&self) -> usize {
         self.len
     }
 
-    fn search(&self, value: T) -> AVLTreeNode<T> {
-        self.root.find_node(value)
-    }
-
+    // check if a tree contains a value
     fn contains(&self, value: T) -> bool {
         match self.search(value) {
             Some(_) => true,
@@ -308,89 +323,12 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         }
     }
 
+    // count the number of leaves in a tree
     fn count_leaves(&self) -> usize {
         self.root.count_leaves()
     }
 
-    fn rotate(&mut self, node: &AVLTreeNode<T>, direction: bool) {
-        let mut parent = node.parent().clone();
-        let mut grandparent = node.grandparent().clone();
-        let mut node = node.clone();
-
-        if parent.compare(&self.root) {
-            self.root = node.clone();
-        } else {
-            node.set_parent(grandparent.clone());
-            if parent.compare(&grandparent.left()) {
-                grandparent.set_left(node.clone());
-            } else {
-                grandparent.set_right(node.clone());
-            }
-        }
-
-        parent.set_parent(node.clone());
-        if direction == ROTATE_LEFT {
-            if node.left().is_some() {
-                node.left().set_parent(parent.clone());
-            }
-            parent.set_right(node.left());
-            parent.recalc_height();
-            node.set_left(parent);
-        } else {
-            if node.right().is_some() {
-                node.right().set_parent(parent.clone());
-            }
-            parent.set_left(node.right());
-            parent.recalc_height();
-            node.set_right(parent);
-        }
-
-        node.recalc_height();
-    }
-
-    fn rebalance(&mut self, node: &mut AVLTreeNode<T>) {
-        node.recalc_height();
-        let balance = node.get_balance();
-
-        // Left Cases
-        if balance > 1 {
-            // LEFT RIGHT
-            if node.left().right().height() > node.left().left().height() {
-                self.rotate(&node.left().right(), ROTATE_LEFT);
-                self.rotate(&node.left(), ROTATE_RIGHT);
-                self.root.recalc_height();
-                return
-            }
-            // LEFT LEFT 
-            else if node.left().right().height() <= node.left().left().height() {
-                self.rotate(&node.left(), ROTATE_RIGHT);
-                self.root.recalc_height();
-                return;
-            }
-        }
-
-        // RIGHT Cases
-        if balance < -1 {
-            // RIGHT LEFT
-            if node.right().left().height() > node.right().right().height() {
-                self.rotate(&node.right().left(), ROTATE_RIGHT);
-                self.rotate(&node.right(), ROTATE_LEFT);
-                self.root.recalc_height();
-                return;
-            }
-            // RIGHT RIGHT
-            else if node.right().left().height() <= node.right().right().height() {
-                self.rotate(&node.right(), ROTATE_LEFT);
-                self.root.recalc_height();
-                return;
-            }
-        }
-
-        if node.parent().is_some() && !node.compare(&self.root) {
-            self.rebalance(&mut node.parent());
-        }
-    }
-
+    // insert a node into a tree
     fn insert_node(&mut self, value: T) {
         // REGULAR BINARY SEARCH TREE INSERTION 
         let mut new_node = AVLTreeNode::new(value);
@@ -439,6 +377,7 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         self.len += 1;
     }
 
+    // remove/delete a node from a tree
     fn delete_node(&mut self, value: T) {
         let mut node = self.search(value);
 
@@ -494,6 +433,7 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         self.len -= 1;
     }
 
+    // print the in-order traversal in a tree
     fn print(&self) {
         if self.is_empty() {
             println!("Tree is empty. Nothing to print.");
@@ -504,7 +444,97 @@ impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::D
         }
     }
 
-    fn get_depth_vec(&self) -> Vec<Depth<T>> {
+    // return all the values in an AVL tree by depth
+    fn get_by_depth(&self) -> Vec<Depth<T>> {
         self.root.get_depth_vec()
+    }
+}
+
+impl<T> AVLTreeTraits<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
+
+    // search for a node with given value in a tree
+    fn search(&self, value: T) -> AVLTreeNode<T> {
+        self.root.find_node(value)
+    }
+
+    // rotate a subtree/node either LEFT or RIGHT
+    fn rotate(&mut self, node: &AVLTreeNode<T>, direction: bool) {
+        let mut parent = node.parent().clone();
+        let mut grandparent = node.grandparent().clone();
+        let mut node = node.clone();
+
+        if parent.compare(&self.root) {
+            self.root = node.clone();
+        } else {
+            node.set_parent(grandparent.clone());
+            if parent.compare(&grandparent.left()) {
+                grandparent.set_left(node.clone());
+            } else {
+                grandparent.set_right(node.clone());
+            }
+        }
+
+        parent.set_parent(node.clone());
+        if direction == ROTATE_LEFT {
+            if node.left().is_some() {
+                node.left().set_parent(parent.clone());
+            }
+            parent.set_right(node.left());
+            parent.recalc_height();
+            node.set_left(parent);
+        } else {
+            if node.right().is_some() {
+                node.right().set_parent(parent.clone());
+            }
+            parent.set_left(node.right());
+            parent.recalc_height();
+            node.set_right(parent);
+        }
+
+        node.recalc_height();
+    }
+
+    // rebalance a tree following insertion or deletion
+    fn rebalance(&mut self, node: &mut AVLTreeNode<T>) {
+        node.recalc_height();
+        let balance = node.get_balance();
+
+        // Left Cases
+        if balance > 1 {
+            // LEFT RIGHT
+            if node.left().right().height() > node.left().left().height() {
+                self.rotate(&node.left().right(), ROTATE_LEFT);
+                self.rotate(&node.left(), ROTATE_RIGHT);
+                self.root.recalc_height();
+                return
+            }
+            // LEFT LEFT 
+            else if node.left().right().height() <= node.left().left().height() {
+                self.rotate(&node.left(), ROTATE_RIGHT);
+                self.root.recalc_height();
+                return;
+            }
+        }
+
+        // RIGHT Cases
+        if balance < -1 {
+            // RIGHT LEFT
+            if node.right().left().height() > node.right().right().height() {
+                self.rotate(&node.right().left(), ROTATE_RIGHT);
+                self.rotate(&node.right(), ROTATE_LEFT);
+                self.root.recalc_height();
+                return;
+            }
+            // RIGHT RIGHT
+            else if node.right().left().height() <= node.right().right().height() {
+                self.rotate(&node.right(), ROTATE_LEFT);
+                self.root.recalc_height();
+                return;
+            }
+        }
+
+        if node.parent().is_some() && !node.compare(&self.root) {
+            self.rebalance(&mut node.parent());
+        }
     }
 }

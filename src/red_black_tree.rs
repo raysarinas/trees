@@ -54,6 +54,8 @@ pub trait RBTNodeTraits<T> {
 }
 
 impl<T> NodeTraits<T> for RBTreeNode<T> where T: Copy + PartialOrd + std::fmt::Debug {
+
+    // print in-order traversal of tree
     fn print_traversal(&self) {
         if self.is_some() && self.value().is_some() {
             self.left().print_traversal();
@@ -66,6 +68,7 @@ impl<T> NodeTraits<T> for RBTreeNode<T> where T: Copy + PartialOrd + std::fmt::D
         }
     }
 
+    // count number of leaves in a tree
     fn count_leaves(&self) -> usize {
         if self.value().is_none() {
             0
@@ -112,6 +115,8 @@ impl<T> NodeTraits<T> for RBTreeNode<T> where T: Copy + PartialOrd + std::fmt::D
 }
 
 impl<T> RBTNodeTraits<T> for RBTreeNode<T> where T: Copy + PartialOrd + std::fmt::Debug {
+
+    // return new instance of a red-black tree node
     fn new(val: T) -> RBTreeNode<T> {
         let tree_node = Some(Rc::new(RefCell::new(RBTNode {
             color: NodeColor::Red,
@@ -126,6 +131,7 @@ impl<T> RBTNodeTraits<T> for RBTreeNode<T> where T: Copy + PartialOrd + std::fmt
         tree_node
     }
 
+    // return unwrapped tree node (reference counter)
     fn unwrapped(&self) -> Rc<RefCell<RBTNode<T>>> {
         match self {
             Some(tree_node) => Rc::clone(&tree_node),
@@ -133,6 +139,7 @@ impl<T> RBTNodeTraits<T> for RBTreeNode<T> where T: Copy + PartialOrd + std::fmt
         }
     }
 
+    // compare if two nodes are the same or not
     fn compare(&self, node: &RBTreeNode<T>) -> bool {
         if self.is_none() || node.is_none() {
             return false
@@ -140,6 +147,7 @@ impl<T> RBTNodeTraits<T> for RBTreeNode<T> where T: Copy + PartialOrd + std::fmt
         Rc::ptr_eq(&self.unwrapped(), &node.unwrapped())
     }
 
+    // search for a node with given value
     fn find_node(&self, value: T) -> RBTreeNode<T> {
         match self.value() {
             Some(_) => {
@@ -155,6 +163,7 @@ impl<T> RBTNodeTraits<T> for RBTreeNode<T> where T: Copy + PartialOrd + std::fmt
         }
     }
 
+    // get the height of a node
     fn node_height(&self) -> usize {
         match self.value() {
             Some(_) => {
@@ -171,21 +180,17 @@ impl<T> RBTNodeTraits<T> for RBTreeNode<T> where T: Copy + PartialOrd + std::fmt
         }
     }
 
+    // determine if a node is red
     fn is_red(&self) -> bool {
         self.color() == NodeColor::Red
     }
 
+    // determine if a node is black
     fn is_black(&self) -> bool {
         self.color() == NodeColor::Black
     }
 
-    fn color(&self) -> NodeColor {
-        match self {
-            Some(tree_node) => tree_node.borrow().color.clone(),
-            None => NodeColor::Black // nil nodes are black
-        }
-    }
-
+    // return the parent of a node
     fn parent(&self) -> RBTreeNode<T> {
         match self {
             Some(tree_node) => tree_node.borrow().parent.clone(),
@@ -193,6 +198,7 @@ impl<T> RBTNodeTraits<T> for RBTreeNode<T> where T: Copy + PartialOrd + std::fmt
         }
     }
 
+    // return the left child of a node
     fn left(&self) -> RBTreeNode<T> {
         match self {
             Some(tree_node) => tree_node.borrow().left.clone(),
@@ -200,6 +206,7 @@ impl<T> RBTNodeTraits<T> for RBTreeNode<T> where T: Copy + PartialOrd + std::fmt
         }
     }
 
+    // return the right child of a node
     fn right(&self) -> RBTreeNode<T> {
         match self {
             Some(tree_node) => tree_node.borrow().right.clone(),
@@ -207,10 +214,12 @@ impl<T> RBTNodeTraits<T> for RBTreeNode<T> where T: Copy + PartialOrd + std::fmt
         }
     }
 
+    // return the parent of a node's parent
     fn grandparent(&self) -> RBTreeNode<T> {
         self.parent().parent()
     }
 
+    // return a parent node's sibling
     fn uncle(&self) -> RBTreeNode<T> {
         if self.grandparent().left().is_none() || self.grandparent().right().is_none() {
             None
@@ -221,6 +230,7 @@ impl<T> RBTNodeTraits<T> for RBTreeNode<T> where T: Copy + PartialOrd + std::fmt
         }
     }
 
+    // return a node's sibling
     fn sibling(&self) -> RBTreeNode<T> {
         match self.compare(&self.parent().left()) {
             true => self.parent().right(),
@@ -228,10 +238,20 @@ impl<T> RBTNodeTraits<T> for RBTreeNode<T> where T: Copy + PartialOrd + std::fmt
         }
     }
 
+    // return the color of a node
+    fn color(&self) -> NodeColor {
+        match self {
+            Some(tree_node) => tree_node.borrow().color.clone(),
+            None => NodeColor::Black // nil nodes are black
+        }
+    }
+
+    // set the color of a node
     fn set_color(&self, color: NodeColor) {
         self.unwrapped().borrow_mut().color = color;
     }
 
+    // set the parent of a node
     fn set_parent(&mut self, parent: RBTreeNode<T>) {
         match self {
             Some(tree_node) => tree_node.borrow_mut().parent = parent,
@@ -245,6 +265,7 @@ impl<T> RBTNodeTraits<T> for RBTreeNode<T> where T: Copy + PartialOrd + std::fmt
         }
     }
 
+    // set the left child of a node
     fn set_left(&mut self, left: RBTreeNode<T>) {
         match self {
             Some(tree_node) => tree_node.borrow_mut().left = left,
@@ -258,6 +279,7 @@ impl<T> RBTNodeTraits<T> for RBTreeNode<T> where T: Copy + PartialOrd + std::fmt
         }
     }
 
+    // set the right child of a node
     fn set_right(&mut self, right: RBTreeNode<T>) {
         match self {
             Some(tree_node) => tree_node.borrow_mut().right = right,
@@ -289,42 +311,31 @@ impl<T> RBTree<T> {
 } 
 
 pub trait RBTreeTraits<T> {
-    // fn height(&self) -> usize;
-    // fn is_empty(&self) -> bool;
-    // fn size(&self) -> usize;
+    // methods required to be implemented for a fully functional red-black tree
     fn search(&self, value: T) -> RBTreeNode<T>;
-    // fn contains(&self, value: T) -> bool;
-    // fn count_leaves(&self) -> usize;
     fn rotate(&mut self, node: &RBTreeNode<T>, direction: bool);
     fn fix_insert_color(&mut self, node: &RBTreeNode<T>);
     fn fix_delete_color(&mut self, node: &RBTreeNode<T>);
-    // fn insert_node(&mut self, value: T);
-    // fn delete_node(&mut self, value: T);
-    // fn print(&self);
-    // fn get_depth_vec(&self) -> Vec<Depth<T>>;
 }
 
 impl<T> TreeBase<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
 
+    // get the height of a tree
     fn height(&self) -> usize {
         self.root.node_height()
-
-        // use code below if nil nodes are included
-        // if self.len >= 1 {
-        //     self.root.node_height() + 1
-        // } else {
-        //     0
-        // }
     }
 
+    // check if a tree is empty
     fn is_empty(&self) -> bool {
         self.root.is_none()
     }
 
+    // get the size of a tree
     fn size(&self) -> usize {
         self.len
     }
 
+    // check if a tree contains a value
     fn contains(&self, value: T) -> bool {
         match self.search(value) {
             Some(_) => true,
@@ -332,10 +343,12 @@ impl<T> TreeBase<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
         }
     }
 
+    // count the number of leaves in a tree
     fn count_leaves(&self) -> usize {
         self.root.count_leaves()
     }
 
+    // insert a node into a tree
     fn insert_node(&mut self, value: T) {
         let mut new_node = RBTreeNode::new(value);
 
@@ -379,6 +392,7 @@ impl<T> TreeBase<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
         self.len += 1;
     }
 
+    // remove/delete a node from a tree
     fn delete_node(&mut self, value: T) {
         let mut node = self.search(value);
 
@@ -433,6 +447,7 @@ impl<T> TreeBase<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
         self.len -= 1;
     }
 
+    // print the in-order traversal in a tree
     fn print(&self) {
         if self.is_empty() {
             println!("Tree is empty. Nothing to print.");
@@ -443,6 +458,7 @@ impl<T> TreeBase<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
         }
     }
 
+    // return all the values in a red-black tree by depth
     fn get_by_depth(&self) -> Vec<Depth<T>> {
         self.root.get_depth_vec()
     }
@@ -450,10 +466,12 @@ impl<T> TreeBase<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
 
 impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
 
+    // search for a node with given value in a tree
     fn search(&self, value: T) -> RBTreeNode<T> {
         self.root.find_node(value)
     }
 
+    // rotate a subtree/node either LEFT or RIGHT
     fn rotate(&mut self, node: &RBTreeNode<T>, direction: bool) {
         let mut parent = node.parent().clone();
         let mut grandparent = node.grandparent().clone();
@@ -486,6 +504,7 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         }
     }
 
+    // rebalance a tree by fixing the colors of nodes after inserting a node
     fn fix_insert_color(&mut self, node: &RBTreeNode<T>) {
         // CASE 1
         if node.compare(&self.root) {
@@ -532,6 +551,7 @@ impl<T> RBTreeTraits<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Deb
         grandparent.set_color(NodeColor::Red);
     }
 
+    // rebalance a tree by fixing the colors of nodes after deleting a node
     fn fix_delete_color(&mut self, node: &RBTreeNode<T>) {
         // CASE 1: node is root so done (it’s already black)
         if node.compare(&self.root) {
