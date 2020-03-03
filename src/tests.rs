@@ -1,77 +1,28 @@
+#[allow(unused_imports)]
 use super::*;
 use crate::tree::*;
 
-pub fn benchmark_redblack() {
-    for tree_size in vec![10_000, 40_000, 70_000, 100_000, 130_000] {
-        let mut tree: red_black_tree::RBTree<u32> = red_black_tree::RBTree::new();
+pub fn benchmark_insert_search(in_tree: impl TreeBase<u32>, tree_size: u32) {
 
+        let mut tree = in_tree;
+    
+        let time = std::time::Instant::now();
         for i in 0..tree_size {
             tree.insert_node(i);
         }
 
-        let depth = tree.get_depth_vec();
-        let time = std::time::Instant::now();
+        // tree.print();
+        // let depth = tree.get_by_depth();
 
         for i in 0..tree_size/10 {
-            match tree.contains(depth[i as usize].0) {
+            match tree.contains(i) {
                 true => { continue; },
                 false => println!("nope"),
             }
         }
 
         println!("Elapsed time for {}: {} ms", tree_size, time.elapsed().as_millis());
-    }
 }
-
-pub fn benchmark_avl() {
-    for tree_size in vec![10_000, 40_000, 70_000, 100_000, 130_000] {
-        let mut tree: avl_tree::AVLTree<u32> = avl_tree::AVLTree::new();
-
-        for i in 0..tree_size {
-            tree.insert_node(i);
-        }
-
-        let depth = tree.get_depth_vec();
-        let time = std::time::Instant::now();
-
-        for i in 0..tree_size/10 {
-            match tree.contains(depth[i as usize].0) {
-                true => { continue; },
-                false => println!("nope"),
-            }
-        }
-
-        println!("Elapsed time for {}: {} ms", tree_size, time.elapsed().as_millis());
-    }
-}
-
-// // #[test]
-// pub fn benchmark_insert_search(mut in_tree: impl TreeBase<u32>) {
-//     // let intree = in_tree;
-//     let mut benchmarks = vec![10_000, 40_000, 70_000, 100_000, 130_000];
-
-//     for tree_size in vec![10_000, 40_000, 70_000, 100_000, 130_000] {
-//         let mut tree = in_tree.clone(); // CANT CLONE NEED TO BORROW TREE SOMEHOW WITHOUT IMPL COPY?
-
-//         for i in 0..tree_size {
-//             tree.insert_node(i);
-//         }
-
-//         tree.print();
-//         let depth = tree.get_by_depth();
-//         let time = std::time::Instant::now();
-
-//         for i in 0..tree_size/10 {
-//             match tree.contains(depth[i as usize].0) {
-//                 true => { continue; },
-//                 false => println!("nope"),
-//             }
-//         }
-
-//         println!("Elapsed time for {}: {} ms", tree_size, time.elapsed().as_millis());
-
-//     }
-// }
 
 #[test]
 pub fn test_treenode() {

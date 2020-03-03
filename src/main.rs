@@ -152,8 +152,18 @@ fn benchmark_tests() {
         println!("{}", BENCHMARK_MENU);
         let choice = get_input(">");
         match choice {
-            1 => benchmark_redblack(),
-            2 => benchmark_avl(),
+            1 => {
+                for tree_size in vec![10_000, 40_000, 70_000, 100_000, 130_000] {
+                    let tree: red_black_tree::RBTree<u32> = red_black_tree::RBTree::new();
+                    benchmark_insert_search(tree, tree_size);
+                }
+            },
+            2 => {
+                for tree_size in vec![10_000, 40_000, 70_000, 100_000, 130_000] {
+                    let tree: avl_tree::AVLTree<u32> = avl_tree::AVLTree::new();
+                    benchmark_insert_search(tree, tree_size);
+                }
+            },
             3 => break,
             _ => println!("Invalid input!")
         }
