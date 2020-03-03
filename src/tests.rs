@@ -30,7 +30,7 @@ pub fn insert_search_deepest(in_tree: impl TreeBase<u32>, tree_size: u32) {
     for i in 0..tree_size {
         tree.insert_node(i);
     }
-    
+
     let depth = tree.get_depth_vec();
 
     for i in 0..tree_size/10 {
@@ -45,6 +45,7 @@ pub fn insert_search_deepest(in_tree: impl TreeBase<u32>, tree_size: u32) {
 
 
 #[test]
+#[ignore]
 pub fn benchmark_insert_search_deepest_nodes() {
 
     for tree_size in vec![10_000, 40_000, 70_000, 100_000, 130_000] {
@@ -73,6 +74,30 @@ pub fn test_treenode() {
 }
 
 #[test]
+pub fn test_insert_delete_rbt() {
+    let mut rbt2: red_black_tree::RBTree<u32> = red_black_tree::RBTree::new();
+    let mut vec_in = vec![30, 20, 40, 10, 50];
+    for &x in vec_in.iter() {
+        rbt2.insert_node(x);
+        assert!(rbt2.contains(x));
+    }
+
+    assert_eq!(rbt2.height(), 3);
+    assert_eq!(rbt2.size(), 5);
+    assert_eq!(rbt2.count_leaves(), 2);
+
+    vec_in = vec![10, 20, 30];
+    for &x in vec_in.iter() {
+        rbt2.delete_node(x);
+        assert!(!rbt2.contains(x));
+    }
+
+    assert_eq!(rbt2.height(), 2);
+    assert_eq!(rbt2.size(), 2);
+    assert_eq!(rbt2.count_leaves(), 1);
+}
+
+#[test]
 pub fn test_insert_rbt_all_cases() {
     let mut rbt: red_black_tree::RBTree<u32> = red_black_tree::RBTree::new();
 
@@ -84,37 +109,7 @@ pub fn test_insert_rbt_all_cases() {
     assert_eq!(rbt.height(), 4);
     assert_eq!(rbt.size(), 10);
     assert_eq!(rbt.count_leaves(), 5);
-    println!("\n==== Start Testing DELETE RBTree Here ====\n");
-    let mut rbt2: red_black_tree::RBTree<u32> = red_black_tree::RBTree::new();
-    let mut vec_in = vec![30, 20, 40, 10, 50];
-    for &x in vec_in.iter() {
-        println!("Inserting {} ...", x);
-        rbt2.insert_node(x);
-        println!("size = {}", rbt2.size());
-        rbt2.print();
-        println!("height = {}", rbt2.height());
-        println!("leaves = {}", rbt2.count_leaves());
-        println!();
-    }
 
-    assert_eq!(rbt2.height(), 3);
-    assert_eq!(rbt2.size(), 5);
-    assert_eq!(rbt2.count_leaves(), 2);
-
-    vec_in = vec![10, 20, 30];
-    for &x in vec_in.iter() {
-        println!("Deleting {} ...", x);
-        rbt2.delete_node(x);
-        println!("size = {}", rbt2.size());
-        rbt2.print();
-        println!("height = {}", rbt2.height());
-        println!("num leaves = {}", rbt2.count_leaves());
-        println!(); 
-    }
-
-    assert_eq!(rbt2.height(), 2);
-    assert_eq!(rbt2.size(), 2);
-    assert_eq!(rbt2.count_leaves(), 1);
 }
 
 #[test]
@@ -218,19 +213,14 @@ pub fn test_delete_rbt_cases_2_4() {
 }
 
 #[test]
-pub fn avl_test() {
-    println!("\n==== Start Testing AVLTree Here ====\n");
+pub fn avl_test_insert_delete_some() {
 
     let mut avl: avl_tree::AVLTree<u32> = avl_tree::AVLTree::new();
     let mut vec_in: Vec<u32> = vec![5, 70, 35, 8, 98, 60, 99, 99, 1, 84, 17];
+
     for &x in vec_in.iter() {
-        println!("inserting {} ...", x);
         avl.insert_node(x);
-        println!("size is now = {}", avl.size());
-        avl.print();
-        println!("height = {}", avl.height());
-        println!("leaves = {}", avl.count_leaves());
-        println!();
+        assert!(avl.contains(x));
     }
     
     assert_eq!(avl.height(), 4);
@@ -239,13 +229,8 @@ pub fn avl_test() {
     
     vec_in = vec![17, 84, 99, 5, 1, 60];
     for &x in vec_in.iter() {
-        println!("deleting {} ...", x);
         avl.delete_node(x);
-        println!("size is now = {}", avl.size());
-        avl.print();
-        println!("height = {}", avl.height());
-        println!("leaves = {}", avl.count_leaves());
-        println!();
+        assert!(!avl.contains(x));
     }
 
     assert_eq!(avl.height(), 3);
@@ -254,17 +239,13 @@ pub fn avl_test() {
 }
 
 #[test]
-pub fn delete_avl() {
+pub fn delete_all_avl() {
     let mut avl: avl_tree::AVLTree<u32> = avl_tree::AVLTree::new();
     
     for x in 1..=10 {
         avl.insert_node(x);
-        println!("inserting ... {}", x);
+        assert!(avl.contains(x));
     }
-    avl.print();
-    println!("height = {}", avl.height());
-    println!("leaves = {}", avl.count_leaves());
-    println!("==========================");
 
     assert_eq!(avl.height(), 4);
     assert_eq!(avl.size(), 10);
@@ -272,16 +253,11 @@ pub fn delete_avl() {
 
     let vec_in = vec![4, 5, 8, 7, 3, 2, 1, 9, 6, 10];
     for &x in vec_in.iter() {
-        println!("deleting {} ...", x);
         avl.delete_node(x);
-        println!("height = {}", avl.height());
-        println!("leaves = {}", avl.count_leaves());
-        avl.print();
-        println!("==========================");
+        assert!(!avl.contains(x));
     }
 
     assert_eq!(avl.height(), 0);
     assert_eq!(avl.size(), 0);
     assert_eq!(avl.count_leaves(), 0);
-    println!();
 }
