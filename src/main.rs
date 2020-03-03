@@ -86,14 +86,14 @@ fn avl() {
                     println!("Error deleting value");
                 }
             },
-            3 => println!("{}", avl.count_leaves()),
-            4 => println!("{}", avl.height()),
+            3 => println!("Number of leaves: {}", avl.count_leaves()),
+            4 => println!("Height: {}", avl.height()),
             5 => avl.print(),
             6 => {
                 if avl.is_empty() {
                     println!("Tree is empty.");
                 } else {
-                    println!("nah tree is full of leaves");
+                    println!("Nah tree is full of leaves");
                 }
             },
             7 => break,
@@ -129,14 +129,14 @@ fn rbt() {
                     println!("Error deleting value");
                 }
             },
-            3 => println!("{}", rbt.count_leaves()),
-            4 => println!("{}", rbt.height()),
+            3 => println!("Number of leaves: {}", rbt.count_leaves()),
+            4 => println!("Height: {}", rbt.height()),
             5 => rbt.print(),
             6 => {
                 if rbt.is_empty() {
                     println!("Tree is empty.");
                 } else {
-                    println!("nah tree is full of leaves");
+                    println!("Nah tree is full of leaves");
                 }
             }
             7 => break,
@@ -150,16 +150,8 @@ fn benchmark_tests() {
         println!("{}", BENCHMARK_MENU);
         let choice = get_input(">");
         match choice {
-            1 => {
-                // let mut tree: red_black_tree::RBTree<u32> = red_black_tree::RBTree::new();
-                // benchmark_insert_search(tree);
-                benchmark_rbt();
-            },
-            2 => {
-                // let mut tree: avl_tree::AVLTree<u32> = avl_tree::AVLTree::new();
-                // benchmark_insert_search(tree);
-                benchmark_avl();
-            },
+            1 => benchmark_redblack(),
+            2 => benchmark_avl(),
             3 => break,
             _ => println!("Invalid input!")
         }
