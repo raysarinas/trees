@@ -459,7 +459,7 @@ impl<T> TreeBase<T> for RBTree<T> where T: Copy + PartialOrd + std::fmt::Debug {
     }
 
     // return all the values in a red-black tree by depth
-    fn get_by_depth(&self) -> Vec<(T, usize)> {
+    fn get_depth_vec(&self) -> Vec<(T, usize)> {
         self.root.get_depth_vec()
     }
 }

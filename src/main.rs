@@ -55,7 +55,10 @@ fn get_input(prompt: &str) -> u32 {
 
         match value.trim().parse::<u32>() {
             Ok(num) => return num,
-            Err(_) => continue
+            Err(_) => {
+                println!("Invalid input! Please enter a numerical value.");
+                continue;
+            }
         }
     }
 }
@@ -103,7 +106,6 @@ fn avl() {
 }
 
 fn rbt() {
-    // not sure what to use for type
     let mut rbt: RBTree<u32> = RBTree::new();
     loop {
         println!("{}", RBT_MENU);
@@ -173,12 +175,4 @@ fn main() {
             _ => println!("Invalid input!")
         }
     }
-    // it_works();
-    // print_test();
-    // delete_cases_2_4();
-    // test_delete_rbt();
-    // avl_test();
-    // delete_avl();
-    // benchmark_redblack();
-    // benchmark_avl();
 }

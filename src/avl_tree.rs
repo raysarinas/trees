@@ -29,7 +29,6 @@ pub trait AVLNodeTraits<T> {
     fn get_balance(&self) -> isize;
     
     // getters for node properties and family members
-    
     fn parent(&self) -> AVLTreeNode<T>;
     fn left(&self) -> AVLTreeNode<T>; 
     fn right(&self) -> AVLTreeNode<T>;
@@ -397,8 +396,8 @@ impl<T> TreeBase<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::Debug 
         if node.left().value().is_some() && node.right().value().is_some() {
             let mut larger = node.left();
 
-            while larger.right().value().is_some() { // larger.left()
-                larger = larger.right(); // larger.left()
+            while larger.right().value().is_some() {
+                larger = larger.right();
             }
 
             node.set_value(larger.value().unwrap());
@@ -445,7 +444,7 @@ impl<T> TreeBase<T> for AVLTree<T> where T: Copy + PartialOrd + std::fmt::Debug 
     }
 
     // return all the values in an AVL tree by depth
-    fn get_by_depth(&self) -> Vec<(T, usize)> {
+    fn get_depth_vec(&self) -> Vec<(T, usize)> {
         self.root.get_depth_vec()
     }
 }
